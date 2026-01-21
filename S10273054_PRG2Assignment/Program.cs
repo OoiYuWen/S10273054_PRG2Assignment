@@ -1,2 +1,5 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿//========================================================== 
+// Student Number : S10273054
+// Student Name : Ooi Yu Wen
+// Partner Name : Chan Xin Chloe
+//========================================================== 
