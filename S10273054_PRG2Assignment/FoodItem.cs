@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace S10273054_PRG2Assignment
 {
-    class FoodItem
     //========================================================== 
-    // Student Number : S10273054
+    // Student Number : S10273054(OoiYuWen)
     // Student Name : Ooi Yu Wen
     // Partner Name : Chloe Chan Xin
     //========================================================== 
+    class FoodItem // Done By Ooi Yu Wen
     {
         public string ItemName { get; set; }
         public string ItemDesc { get; set; }
@@ -28,7 +28,7 @@ namespace S10273054_PRG2Assignment
         }
         public override string ToString()
         {
-            return "Item Name: " + ItemName + "Item Desc: " + ItemDesc + "Item Price: " + ItemPrice + "Customise: " + Customise;
+            return $"ItemName:{ItemName}, ItemDesc: {ItemDesc}, ItemPrice: {ItemPrice:F2}, Customise: {Customise}";
         }
     }
 }

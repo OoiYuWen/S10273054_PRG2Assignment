@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 namespace S10273054_PRG2Assignment
 {
     //========================================================== 
-    // Student Number : S10273054
+    // Student Number : S10273054(OoiYuWen)
     // Student Name : Ooi Yu Wen
     // Partner Name : Chan Xin Chloe
     //========================================================== 
-    class Order
+    class Order // Done By Chan Xin Chloe
     {
         // Attributes
         public int OrderId { get; set; }
