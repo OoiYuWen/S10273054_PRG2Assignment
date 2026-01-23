@@ -17,7 +17,7 @@ namespace S10273054_PRG2Assignment
         public string MenuName { get; set; }
         public Restaurant Restaurant { get; set; }
         List<FoodItem> FoodItems { get; set; } = new List<FoodItem>();
-        public Menu() { } 
+        public Menu() { }
         public Menu(string menuId, string menuName, Restaurant restaurant, List<FoodItem> foodItems)
         {
             MenuId = menuId;
@@ -37,12 +37,12 @@ namespace S10273054_PRG2Assignment
             Console.WriteLine($"Menu:{MenuName}");
             foreach(FoodItem item in FoodItems)
             {
-                Console.WriteLine($"");
+                Console.WriteLine(item);
             }
         }
         public override string ToString()
         {
-            return "MenuId: " + MenuId + "MenuName" + MenuName + "Restaurant" + Restaurant;
+            return $"MenuId: {MenuId}, MenuName: {MenuName}, Restaurant: {Restaurant.RestaurantName}";
         }
     }
 }

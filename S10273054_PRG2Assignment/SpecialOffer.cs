@@ -11,7 +11,7 @@ namespace S10273054_PRG2Assignment
     // Student Name : Ooi Yu Wen
     // Partner Name : Chan Xin Chloe
     //========================================================== 
-    internal class SpecialOffer
+    class SpecialOffer
     {
     }
 }
