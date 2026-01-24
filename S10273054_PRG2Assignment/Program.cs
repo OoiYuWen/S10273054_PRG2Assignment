@@ -5,6 +5,7 @@
 //========================================================== 
 
 using S10273054_PRG2Assignment;
+
 // 2) Load files (customers and orders)
 List<Customer> custList = new List<Customer>();
 
@@ -26,7 +27,6 @@ void LoadCustomers(List<Customer> customers)
 // 1) Load files (restaurants and food items) 
 List<Restaurant> restaurantlist = new List<Restaurant>(); 
 List<FoodItem> fooditemlist = new List<FoodItem>();
-
 void LoadFoodItem (List<FoodItem> fooditemlist, List<Restaurant> restaurantlist)
 {
     Dictionary<string, Menu> menus = new Dictionary<string, Menu>();
@@ -54,7 +54,7 @@ void LoadFoodItem (List<FoodItem> fooditemlist, List<Restaurant> restaurantlist)
             if (restaurant != null)
             {
                 // Create a new menu for the restaurant if it doesn't exist 
-                if (!menus.ContainsKey(restaurantid))
+                if (!menus.ContainsKey(restaurantid)) //this checks whether there is a menu already or not 
                 {
                     Menu menu = new Menu(
                         menuId: "M" + restaurantid, 
@@ -89,4 +89,11 @@ void LoadRestaurant(List<Restaurant> restaurantlist)
     }
 }
 
-
+// 4) List all orders with basic information
+void DisplayAllOrders(List<Order> orders, List<Customer> customers, List<Restaurant> restaurantlist)
+{
+    Console.WriteLine("All Orders");
+    Console.WriteLine("==========");
+    Console.WriteLine($"{"Order ID",-10} {"Customer",-15} {"Restaurant",-15} {"Delivery Date/Time",-20} {"Amount",-10} {"Status",-10}");
+    Console.WriteLine($"{"--------",-10} {"----------",-15} {"-------------",-15} {"------------------",-20} {"------",-10} {"---------",-10}");
+}
