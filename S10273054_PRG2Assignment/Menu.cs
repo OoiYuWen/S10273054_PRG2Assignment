@@ -25,6 +25,8 @@ namespace S10273054_PRG2Assignment
             Restaurant = restaurant;
         }
         public void AddFoodItem(FoodItem item)
+            // Need the FoodItem as FoodItem is the data type
+            // writing FoodItem shows that the parameter is inside the FoodItem class
         {
             FoodItems.Add(item);
         }
@@ -35,7 +37,7 @@ namespace S10273054_PRG2Assignment
         public void DisplayFoodItem()
         {
             Console.WriteLine($"Menu:{MenuName}");
-            foreach(FoodItem item in FoodItems)
+            foreach(FoodItem item in FoodItems) // loops through each fooditem object stored in fooditem list 
             {
                 Console.WriteLine(item);
             }

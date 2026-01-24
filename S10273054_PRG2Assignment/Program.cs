@@ -23,6 +23,70 @@ void LoadCustomers(List<Customer> customers)
         }
     }
 }
+// 1) Load files (restaurants and food items) 
+List<Restaurant> restaurantlist = new List<Restaurant>(); 
+List<FoodItem> fooditemlist = new List<FoodItem>();
 
+void LoadFoodItem (List<FoodItem> fooditemlist, List<Restaurant> restaurantlist)
+{
+    Dictionary<string, Menu> menus = new Dictionary<string, Menu>();
+    using (StreamReader sr = new StreamReader("restaurant.csv"))
+    {
+        string? s = sr.ReadLine();
+        while ((s = sr.ReadLine()) != null)
+        {
+            string[] parts = s.Split(",");
+            string restaurantid = parts[0];
+            string itemname = parts[1];
+            string itemdesc = parts[2];
+            double itemprice = Convert.ToDouble(parts[3]);
+            string customise = "N/A";
+
+            FoodItem fooditem = new FoodItem(itemname, itemdesc, itemprice, customise);
+            fooditemlist.Add(fooditem);
+
+            Restaurant restaurant = null;
+            foreach(Restaurant r in restaurantlist)
+            {
+                restaurant = r;
+                break;
+            }
+            if (restaurant != null)
+            {
+                // Create a new menu for the restaurant if it doesn't exist 
+                if (!menus.ContainsKey(restaurantid))
+                {
+                    Menu menu = new Menu(
+                        menuId: "M" + restaurantid, 
+                        menuName: restaurant.RestaurantName + " Menu",
+                        restaurant: restaurant, 
+                        foodItems: new List<FoodItem>() // start empty 
+                        ); 
+                    menus[restaurantid] = menu;
+                    restaurant.AddMenu(menu);
+                }
+                // Add the food item to the restaurant's menu
+                menus[restaurantid].AddFoodItem(fooditem);
+            }
+        }
+    }
+}
+void LoadRestaurant(List<Restaurant> restaurantlist)
+{
+    using (StreamReader sr = new StreamReader("restaurant.csv"))
+    {
+        string? s = sr.ReadLine();
+        while ((s = sr.ReadLine()) != null)
+        {
+            string[] parts = s.Split(",");
+            string id = parts[0];
+            string name = parts[1];
+            string email = parts[2];
+
+            Restaurant restaurant = new Restaurant(id, name, email);
+            restaurantlist.Add(restaurant);
+        }
+    }
+}
 
 
