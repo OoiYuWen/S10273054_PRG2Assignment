@@ -4,6 +4,7 @@
 // Partner Name : Chan Xin Chloe
 //========================================================== 
 
+
 using S10273054_PRG2Assignment;
 
 // 2) Load files (customers and orders)
@@ -30,7 +31,7 @@ List<FoodItem> fooditemlist = new List<FoodItem>();
 void LoadFoodItem (List<FoodItem> fooditemlist, List<Restaurant> restaurantlist)
 {
     Dictionary<string, Menu> menus = new Dictionary<string, Menu>();
-    using (StreamReader sr = new StreamReader("restaurant.csv"))
+    using (StreamReader sr = new StreamReader("fooditem.csv"))
     {
         string? s = sr.ReadLine();
         while ((s = sr.ReadLine()) != null)
@@ -49,21 +50,16 @@ void LoadFoodItem (List<FoodItem> fooditemlist, List<Restaurant> restaurantlist)
             foreach(Restaurant r in restaurantlist)
             {
                 restaurant = r;
-                break;
+                continue;
             }
             if (restaurant != null)
             {
                 // Create a new menu for the restaurant if it doesn't exist 
                 if (!menus.ContainsKey(restaurantid)) //this checks whether there is a menu already or not 
                 {
-                    Menu menu = new Menu(
-                        menuId: "M" + restaurantid, 
-                        menuName: restaurant.RestaurantName + " Menu",
-                        restaurant: restaurant, 
-                        foodItems: new List<FoodItem>() // start empty 
-                        ); 
-                    menus[restaurantid] = menu;
-                    restaurant.AddMenu(menu);
+                    Menu newMenu = new Menu("M" + restaurantid, restaurant.RestaurantName + " Menu",restaurant); 
+                    menus[restaurantid] = newMenu;
+                    restaurant.AddMenu(newMenu);
                 }
                 // Add the food item to the restaurant's menu
                 menus[restaurantid].AddFoodItem(fooditem);
