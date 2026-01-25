@@ -38,9 +38,9 @@ namespace S10273054_PRG2Assignment
                 Console.WriteLine(order.ToString());
             }
         }
-        public void RemoveOrder(Order order)
+        public bool RemoveOrder(Order order)
         {
-            OrderList.Remove(order);
+            return OrderList.Remove(order);
         }
         public override string ToString()
         {
