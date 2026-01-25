@@ -18,7 +18,7 @@ namespace S10273054_PRG2Assignment
         public Restaurant Restaurant { get; set; }
         List<FoodItem> FoodItems { get; set; } = new List<FoodItem>();
         public Menu() { }
-        public Menu(string menuId, string menuName, Restaurant restaurant, List<FoodItem> foodItems)
+        public Menu(string menuId, string menuName, Restaurant restaurant)
         {
             MenuId = menuId;
             MenuName = menuName;
