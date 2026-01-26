@@ -36,6 +36,15 @@ namespace S10273054_PRG2Assignment
                 Console.WriteLine(offer);
             }
         }
+        public void DisplayMenu()
+        {
+            Console.WriteLine($"--- Menus for {RestaurantName} ---");
+            foreach (Menu menu in Menus)
+            {
+                Console.WriteLine(menu.ToString());
+                menu.DisplayFoodItem();
+            }    
+        }
         public void AddMenu(Menu menu)
         {
             Menus.Add(menu);
