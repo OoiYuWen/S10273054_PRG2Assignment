@@ -24,11 +24,12 @@ namespace S10273054_PRG2Assignment
         public bool OrderPaid { get; set; }
         public Restaurant Restaurant { get; set; }  // Bidrectional Association
         public Customer Customer { get; set; }      // Bidrectional Association
+        public SpecialOffer Specialoffer { get; set; }  // Association to the special offer class since many order can have ONE special offer.
         public List<OrderedFoodItem> OrderList { get; set; } = new List<OrderedFoodItem>();   // OrderedList
 
         // Constructor
         public Order() { }
-        public Order(int orderId, DateTime orderDateTime, double orderTotal, string orderStatus, DateTime deliveryDateTime, string deliveryAddress, string orderPaymentMethod, bool orderPaid, Restaurant restaurant, Customer customer)
+        public Order(int orderId, DateTime orderDateTime, double orderTotal, string orderStatus, DateTime deliveryDateTime, string deliveryAddress, string orderPaymentMethod, bool orderPaid, Restaurant restaurant, Customer customer, SpecialOffer specialoffer)
         {
             OrderId = orderId;
             OrderDateTime = orderDateTime;
@@ -40,6 +41,7 @@ namespace S10273054_PRG2Assignment
             OrderPaid = orderPaid;
             Restaurant = restaurant;
             Customer = customer;
+            Specialoffer = specialoffer;
         }
 
         // Methods
