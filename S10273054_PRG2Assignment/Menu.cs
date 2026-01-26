@@ -15,14 +15,12 @@ namespace S10273054_PRG2Assignment
     {
         public string MenuId { get; set; }
         public string MenuName { get; set; }
-        public Restaurant Restaurant { get; set; }
-        List<FoodItem> FoodItems { get; set; } = new List<FoodItem>();
+        public List<FoodItem> FoodItems { get; set; } = new List<FoodItem>();
         public Menu() { }
-        public Menu(string menuId, string menuName, Restaurant restaurant)
+        public Menu(string menuId, string menuName)
         {
             MenuId = menuId;
             MenuName = menuName;
-            Restaurant = restaurant;
         }
         public void AddFoodItem(FoodItem item)
             // Need the FoodItem as FoodItem is the data type

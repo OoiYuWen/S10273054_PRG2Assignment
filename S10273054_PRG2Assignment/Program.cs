@@ -57,7 +57,7 @@ void LoadFoodItem (List<FoodItem> fooditemlist, List<Restaurant> restaurantlist)
                 // Create a new menu for the restaurant if it doesn't exist 
                 if (!menus.ContainsKey(restaurantid)) //this checks whether there is a menu already or not 
                 {
-                    Menu newMenu = new Menu("M" + restaurantid, restaurant.RestaurantName + " Menu",restaurant); 
+                    Menu newMenu = new Menu("M" + restaurantid, restaurant.RestaurantName + " Menu"); 
                     menus[restaurantid] = newMenu;
                     restaurant.AddMenu(newMenu);
                 }
