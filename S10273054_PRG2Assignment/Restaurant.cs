@@ -18,7 +18,7 @@ namespace S10273054_PRG2Assignment
         public string RestaurantEmail { get; set; }
         public List<Menu> Menus { get; set; } = new List<Menu>();
         public List<SpecialOffer> SpecialOffers { get; set; } = new List<SpecialOffer>();
-        public List<OrderedFoodItem> OrderList { get; set; } = new List<OrderedFoodItem>();
+        public List<Order> Order { get; set; } = new List<Order>();
         public Restaurant() { }
         public Restaurant(string restaurantId, string restaurantName, string restaurantEmail)
         {
