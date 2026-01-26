@@ -22,11 +22,13 @@ namespace S10273054_PRG2Assignment
         public string DeliveryAddress { get; set; }
         public string OrderPaymentMethod { get; set; }
         public bool OrderPaid { get; set; }
+        public Restaurant Restaurant { get; set; }  // Bidrectional Association
+        public Customer Customer { get; set; }      // Bidrectional Association
         public List<OrderedFoodItem> OrderList { get; set; } = new List<OrderedFoodItem>();   // OrderedList
 
         // Constructor
         public Order() { }
-        public Order(int orderId, DateTime orderDateTime, double orderTotal, string orderStatus, DateTime deliveryDateTime, string deliveryAddress, string orderPaymentMethod, bool orderPaid)
+        public Order(int orderId, DateTime orderDateTime, double orderTotal, string orderStatus, DateTime deliveryDateTime, string deliveryAddress, string orderPaymentMethod, bool orderPaid, Restaurant restaurant, Customer customer)
         {
             OrderId = orderId;
             OrderDateTime = orderDateTime;
@@ -36,6 +38,8 @@ namespace S10273054_PRG2Assignment
             DeliveryAddress = deliveryAddress;
             OrderPaymentMethod = orderPaymentMethod;
             OrderPaid = orderPaid;
+            Restaurant = restaurant;
+            Customer = customer;
         }
 
         // Methods
