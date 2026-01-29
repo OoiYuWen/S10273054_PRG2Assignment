@@ -17,7 +17,7 @@ namespace S10273054_PRG2Assignment
         public string RestaurantName { get; set; }
         public string RestaurantEmail { get; set; }
         public Dictionary<string,Menu> Menus { get; set; } = new Dictionary<string,Menu>();
-        public List<SpecialOffer> SpecialOffers { get; set; } = new List<SpecialOffer>();
+        public Dictionary<string,SpecialOffer> SpecialOffers { get; set; } = new Dictionary<string, SpecialOffer>();
         public List<Order> Order { get; set; } = new List<Order>();
         public Restaurant() { }
         public Restaurant(string restaurantId, string restaurantName, string restaurantEmail)
