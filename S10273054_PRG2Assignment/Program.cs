@@ -14,6 +14,7 @@ using System.Numerics;
 // 2) Load files (customers and orders)
 Dictionary<string, Customer> custDict = new Dictionary <string, Customer>();
 Dictionary<int, Order> orderDict = new Dictionary<int, Order>();
+Dictionary<string, SpecialOffer> specialOfferDict = new Dictionary<string, SpecialOffer>();
 
 void LoadCustomers(Dictionary<string, Customer> custDict)
 {
@@ -30,15 +31,32 @@ void LoadCustomers(Dictionary<string, Customer> custDict)
         }
     }
 }
-void LoadOrders(Dictionary<int, Order> orderList)
+void LoadOrders(Dictionary<int, Order> orderList, Dictionary<string, Restaurant> RestaurantDict, Dictionary<string, Customer> custDict, Dictionary<string, SpecialOffer> specialOfferDict)
 {
+    // Read special offer csv and create objects to be added into restaurant special offer list
+    using (StreamReader sr = new StreamReader("specialoffers.csv"))
+    {
+        string? s = sr.ReadLine(); // Skip header line
+        while ((s = sr.ReadLine()) != null)
+        {
+            string[] parts = s.Split(',');
+            string restaurantName = parts[0];
+            string offerId = parts[1];
+            string offerDesc = parts[2];
+            double discountPerc = Convert.ToDouble(parts[3]);
+            SpecialOffer so = new SpecialOffer(offerId, offerDesc, discountPerc);
+            specialOfferDict.Add(offerId, so);
+        }
+    }
+
+    // Read orders csv and create order objects
     using (StreamReader sr = new StreamReader("orders.csv"))
     {
         string? s = sr.ReadLine(); // Skip header line
         while ((s = sr.ReadLine()) != null)
         {
             string[] parts = s.Split(',');
-            string orderId = parts[0];
+            int orderId = Convert.ToInt32(parts[0]);
             string email = parts[1];
             string restuarantId = parts[2];
             string deliveryDate = parts[3]; // put as string first to put date and time together to make them DateTime
@@ -53,15 +71,30 @@ void LoadOrders(Dictionary<int, Order> orderList)
             DateTime deliveryDateTime = Convert.ToDateTime(deliveryDT);
 
             // Find restaurant
+            Restaurant r = SearchRestaurant(RestaurantDict, restuarantId);
+            // Find Customer
+            Customer c = SearchCustomer(custDict, email);
+            // Find Special Offer
+            SpecialOffer so = SearchSpecialOffer(specialOfferDict, r.Restaurant.offer);
 
-
-            Order order = new Order(orderId, createdDateTime, totalAmount, status, deliveryDateTime, deliveryAddress, "Unknown", false,  );
+            Order order = new Order(orderId, createdDateTime, totalAmount, status, deliveryDateTime, deliveryAddress, "Unknown", false, r, c,  );
             
         }
     }
 }
+// Search function for customer
+Customer SearchCustomer(Dictionary<string, Customer> custDict, string emailAddress)
+{
+    return custDict[emailAddress];
+}
 
-// 1) Load files (restaurants and food items)
+// Search special offer
+SpecialOffer SearchSpecialOffer(Dictionary<string, SpecialOffer> specialOfferDict, string offerId)
+{
+    return specialOfferDict[offerId];
+}
+
+// 1) Load files (restaurants and food items) 
 Dictionary<string, Menu> menus = new Dictionary<string, Menu>();
 List<FoodItem> fooditemlist = new List<FoodItem>();
 Dictionary<string, Restaurant> RestaurantDict =new Dictionary<string, Restaurant>(); 
