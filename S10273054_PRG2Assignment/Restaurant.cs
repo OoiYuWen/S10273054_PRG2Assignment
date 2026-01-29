@@ -32,7 +32,7 @@ namespace S10273054_PRG2Assignment
         }
         public void DisplaySpecialOffers()
         {
-            foreach (SpecialOffer offer in SpecialOffers)
+            foreach(SpecialOffer offer in SpecialOffers.Values)
             {
                 Console.WriteLine(offer);
             }
@@ -40,7 +40,7 @@ namespace S10273054_PRG2Assignment
         public void DisplayMenu()
         {
             Console.WriteLine($"--- Menus for {RestaurantName} ---");
-            foreach (Menu menu in Menus)
+            foreach (Menu menu in Menus.Values)
             {
                 Console.WriteLine(menu.ToString());
                 menu.DisplayFoodItem();
@@ -48,11 +48,11 @@ namespace S10273054_PRG2Assignment
         }
         public void AddMenu(Menu menu)
         {
-            Menus.Add(menu);
+            Menus.Add(menu.MenuId,menu); // add must add menu and menuid
         }
         public bool RemoveMenu(Menu menu)
         {
-            return Menus.Remove(menu);
+            return Menus.Remove(menu.MenuId); // remove by key only 
         }
         public override string ToString()
         {
