@@ -61,8 +61,7 @@ void LoadOrders(Dictionary<int, Order> orderList)
     }
 }
 
-// 1) Load files (restaurants and food items) 
-
+// 1) Load files (restaurants and food items)
 Dictionary<string, Menu> menus = new Dictionary<string, Menu>();
 List<FoodItem> fooditemlist = new List<FoodItem>();
 Dictionary<string, Restaurant> RestaurantDict =new Dictionary<string, Restaurant>(); 
