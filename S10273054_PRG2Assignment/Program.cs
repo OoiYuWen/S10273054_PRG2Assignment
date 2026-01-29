@@ -14,10 +14,10 @@ using System.Numerics;
 // 2) Load files (customers and orders)
 Dictionary<string, Customer> custDict = new Dictionary <string, Customer>();
 Dictionary<int, Order> orderDict = new Dictionary<int, Order>();
-Dictionary<string, SpecialOffer> specialOfferDict = new Dictionary<string, SpecialOffer>();
 
 void LoadCustomers(Dictionary<string, Customer> custDict)
 {
+    int counter = 0;
     using (StreamReader sr = new StreamReader("customers.csv"))
     {
         string? s = sr.ReadLine(); // Skip header line
@@ -28,29 +28,16 @@ void LoadCustomers(Dictionary<string, Customer> custDict)
             string email = parts[1];
             Customer customer = new Customer(email, name);
             custDict.Add(customer.CustomerName, customer);
+            counter++;
+            Console.WriteLine($"{counter} customers loaded!");
         }
     }
 }
-void LoadOrders(Dictionary<int, Order> orderList, Dictionary<string, Restaurant> RestaurantDict, Dictionary<string, Customer> custDict, Dictionary<string, SpecialOffer> specialOfferDict)
+void LoadOrders(Dictionary<int, Order> orderList, Dictionary<string, Restaurant> RestaurantDict, Dictionary<string, Customer> custDict)
 {
-    // Read special offer csv and create objects to be added into restaurant special offer list
-    using (StreamReader sr = new StreamReader("specialoffers.csv"))
-    {
-        string? s = sr.ReadLine(); // Skip header line
-        while ((s = sr.ReadLine()) != null)
-        {
-            string[] parts = s.Split(',');
-            string restaurantName = parts[0];
-            string offerId = parts[1];
-            string offerDesc = parts[2];
-            double discountPerc = Convert.ToDouble(parts[3]);
-            SpecialOffer so = new SpecialOffer(offerId, offerDesc, discountPerc);
-            specialOfferDict.Add(offerId, so);
-        }
-    }
-
+    int counter = 0;
     // Read orders csv and create order objects
-    using (StreamReader sr = new StreamReader("orders.csv"))
+    using (StreamReader sr = new StreamReader("orders - Copy.csv"))
     {
         string? s = sr.ReadLine(); // Skip header line
         while ((s = sr.ReadLine()) != null)
@@ -74,25 +61,26 @@ void LoadOrders(Dictionary<int, Order> orderList, Dictionary<string, Restaurant>
             Restaurant r = SearchRestaurant(RestaurantDict, restuarantId);
             // Find Customer
             Customer c = SearchCustomer(custDict, email);
-            // Find Special Offer
-            SpecialOffer so = SearchSpecialOffer(specialOfferDict, r.Restaurant.offer);
 
-            Order order = new Order(orderId, createdDateTime, totalAmount, status, deliveryDateTime, deliveryAddress, "Unknown", false, r, c,  );
-            
+            Order order = new Order(orderId, createdDateTime, totalAmount, status, deliveryDateTime, deliveryAddress, "Unknown", false, r, c);
+            counter++;
+            Console.WriteLine($"{counter} orders loaded!");
+
+            // Add to restaurant's order queue
+            r.OrderQueue.Enqueue(order);
+            // Add to customer's order list
+            c.AddOrder(order);
+
         }
     }
 }
+    
 // Search function for customer
 Customer SearchCustomer(Dictionary<string, Customer> custDict, string emailAddress)
 {
     return custDict[emailAddress];
 }
 
-// Search special offer
-SpecialOffer SearchSpecialOffer(Dictionary<string, SpecialOffer> specialOfferDict, string offerId)
-{
-    return specialOfferDict[offerId];
-}
 
 // 1) Load files (restaurants and food items) 
 Dictionary<string, Menu> menus = new Dictionary<string, Menu>();
@@ -101,6 +89,7 @@ Dictionary<string, Restaurant> RestaurantDict =new Dictionary<string, Restaurant
 
 void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string,Menu> MenuList, Dictionary<string, Restaurant> RestaurantDict)
 {
+    int counter = 0;
     using (StreamReader sr = new StreamReader("fooditem.csv"))
     {
         string? s = sr.ReadLine();
@@ -114,6 +103,9 @@ void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string,Menu> MenuList
             string customise = "N/A";
 
             FoodItem fooditem = new FoodItem(itemname, itemdesc, itemprice, customise);
+            fooditemlist.Add(fooditem);
+            counter++;
+            Console.WriteLine($"{counter} food items loaded!");
 
             Menu menu = new Menu("001", "Main Menu");
             menu.AddFoodItem(fooditem);
@@ -150,6 +142,7 @@ Restaurant SearchRestaurant(Dictionary<string, Restaurant> RestaurantDict, strin
             }  */
 void LoadRestaurant(Dictionary<string,Restaurant> RestaurantDict)
 {
+    int counter = 0;
     using (StreamReader sr = new StreamReader("restaurant.csv"))
     {
         string? s = sr.ReadLine();
@@ -162,6 +155,8 @@ void LoadRestaurant(Dictionary<string,Restaurant> RestaurantDict)
 
             Restaurant restaurant = new Restaurant(id, name, email);
             RestaurantDict.Add(id,restaurant);
+            counter++;
+            Console.WriteLine($"{counter} restaurants loaded!");
         }
     }
 }
