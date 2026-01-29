@@ -4,6 +4,8 @@
 // Partner Name : Chan Xin Chloe
 //========================================================== 
 
+// Chloe: 2,3,5,7
+// Yu Wen: 1,4,6,8
 
 using Microsoft.VisualBasic;
 using S10273054_PRG2Assignment;
