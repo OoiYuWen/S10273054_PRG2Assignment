@@ -42,7 +42,7 @@ namespace S10273054_PRG2Assignment
         }
         public override string ToString()
         {
-            return $"MenuId: {MenuId}, MenuName: {MenuName}, Restaurant: {Restaurant.RestaurantName}";
+            return $"MenuId: {MenuId}, MenuName: {MenuName}";
         }
     }
 }
