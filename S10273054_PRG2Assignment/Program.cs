@@ -10,11 +10,24 @@
 using Microsoft.VisualBasic;
 using S10273054_PRG2Assignment;
 using System.Numerics;
+//Actual Program Starts Here
+Console.WriteLine("Welcome to the Gruberoo Food Delivery System");
 
-// 2) Load files (customers and orders)
-Dictionary<string, Customer> custDict = new Dictionary <string, Customer>();
+// Collections to hold data
+Dictionary<string, Customer> custDict = new Dictionary<string, Customer>();
 Dictionary<int, Order> orderDict = new Dictionary<int, Order>();
 
+Dictionary<string, Menu> menus = new Dictionary<string, Menu>();
+List<FoodItem> fooditemlist = new List<FoodItem>();
+Dictionary<string, Restaurant> RestaurantDict = new Dictionary<string, Restaurant>();
+
+// Load Data from CSV files
+LoadRestaurant(RestaurantDict);
+LoadFoodItem(fooditemlist, menus, RestaurantDict);
+LoadCustomers(custDict);
+LoadOrders(orderDict, RestaurantDict, custDict);
+
+// 2) Load files (customers and orders)
 void LoadCustomers(Dictionary<string, Customer> custDict)
 {
     int counter = 0;
@@ -83,10 +96,6 @@ Customer SearchCustomer(Dictionary<string, Customer> custDict, string emailAddre
 
 
 // 1) Load files (restaurants and food items) 
-Dictionary<string, Menu> menus = new Dictionary<string, Menu>();
-List<FoodItem> fooditemlist = new List<FoodItem>();
-Dictionary<string, Restaurant> RestaurantDict =new Dictionary<string, Restaurant>(); 
-
 void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string,Menu> MenuList, Dictionary<string, Restaurant> RestaurantDict)
 {
     int counter = 0;
