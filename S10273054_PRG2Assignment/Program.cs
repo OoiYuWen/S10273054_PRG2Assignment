@@ -7,7 +7,9 @@
 // Chloe: 2,3,5,7
 // Yu Wen: 1,4,6,8
 
+using Microsoft.VisualBasic;
 using S10273054_PRG2Assignment;
+using System.Numerics;
 
 // 2) Load files (customers and orders)
 Dictionary<string, Customer> custDict = new Dictionary <string, Customer>();
@@ -61,10 +63,12 @@ void LoadOrders(Dictionary<int, Order> orderList)
 
 // 1) Load files (restaurants and food items) 
 Dictionary<string, Restaurant> restaurantDict = new Dictionary<string, Restaurant>(); 
+Dictionary<string, Menu> menus = new Dictionary<string, Menu>();
 List<FoodItem> fooditemlist = new List<FoodItem>();
-void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string, Restaurant> restaurantDict)
+Dictionary<string, Restaurant> RestaurantDict =new Dictionary<string, Restaurant>(); 
+
+void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string,Menu> MenuList, Dictionary<string, Restaurant> RestaurantDict)
 {
-    Dictionary<string, Menu> menus = new Dictionary<string, Menu>();
     using (StreamReader sr = new StreamReader("fooditem.csv"))
     {
         string? s = sr.ReadLine();
@@ -78,15 +82,29 @@ void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string, Restaurant> r
             string customise = "N/A";
 
             FoodItem fooditem = new FoodItem(itemname, itemdesc, itemprice, customise);
-            fooditemlist.Add(fooditem);
 
-            Restaurant restaurant = null;
+            Menu menu = new Menu("001", "Main Menu");
+            menu.AddFoodItem(fooditem);
+
+            Restaurant r = SearchRestaurant(RestaurantDict, restaurantid);
+            r.AddMenu(menu);
+        }
+    }
+}
+
+Restaurant SearchRestaurant(Dictionary<string, Restaurant> RestaurantDict, string restaurantid)
+{
+    return RestaurantDict[restaurantid];
+}
+// Extra information: 
+//create restaurant, create menu, use function to add fooditem to menu, then menu add to restaurant
+           /*Restaurant restaurant = null;
             foreach(Restaurant r in restaurantlist)
             {
                 restaurant = r;
                 continue;
             }
-            if (restaurant != null)
+            if (r != null)
             {
                 // Create a new menu for the restaurant if it doesn't exist 
                 if (!menus.ContainsKey(restaurantid)) //this checks whether there is a menu already or not 
@@ -97,11 +115,8 @@ void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string, Restaurant> r
                 }
                 // Add the food item to the restaurant's menu
                 menus[restaurantid].AddFoodItem(fooditem);
-            }
-        }
-    }
-}
-void LoadRestaurant(Dictionary<string, Restaurant> restaurantDict)
+            }  */
+void LoadRestaurant(Dictionary<string,Restaurant> RestaurantDict)
 {
     using (StreamReader sr = new StreamReader("restaurant.csv"))
     {
@@ -114,7 +129,7 @@ void LoadRestaurant(Dictionary<string, Restaurant> restaurantDict)
             string email = parts[2];
 
             Restaurant restaurant = new Restaurant(id, name, email);
-            restaurantDict.Add(id, restaurant);
+            RestaurantDict.Add(id,restaurant);
         }
     }
 }
