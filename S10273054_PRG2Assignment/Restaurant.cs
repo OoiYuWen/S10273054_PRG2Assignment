@@ -16,8 +16,8 @@ namespace S10273054_PRG2Assignment
         public string RestaurantId { get; set; }
         public string RestaurantName { get; set; }
         public string RestaurantEmail { get; set; }
-        public List<Menu> Menus { get; set; } = new List<Menu>();
-        public List<SpecialOffer> SpecialOffers { get; set; } = new List<SpecialOffer>();
+        public Dictionary<string,Menu> Menus { get; set; } = new Dictionary<string,Menu>();
+        public Dictionary<string,SpecialOffer> SpecialOffers { get; set; } = new Dictionary<string, SpecialOffer>();
         public List<Order> Order { get; set; } = new List<Order>();
         public Restaurant() { }
         public Restaurant(string restaurantId, string restaurantName, string restaurantEmail)
@@ -32,7 +32,7 @@ namespace S10273054_PRG2Assignment
         }
         public void DisplaySpecialOffers()
         {
-            foreach (SpecialOffer offer in SpecialOffers)
+            foreach(SpecialOffer offer in SpecialOffers.Values)
             {
                 Console.WriteLine(offer);
             }
@@ -40,7 +40,7 @@ namespace S10273054_PRG2Assignment
         public void DisplayMenu()
         {
             Console.WriteLine($"--- Menus for {RestaurantName} ---");
-            foreach (Menu menu in Menus)
+            foreach (Menu menu in Menus.Values)
             {
                 Console.WriteLine(menu.ToString());
                 menu.DisplayFoodItem();
@@ -48,11 +48,11 @@ namespace S10273054_PRG2Assignment
         }
         public void AddMenu(Menu menu)
         {
-            Menus.Add(menu);
+            Menus.Add(menu.MenuId,menu); // add must add menu and menuid
         }
         public bool RemoveMenu(Menu menu)
         {
-            return Menus.Remove(menu);
+            return Menus.Remove(menu.MenuId); // remove by key only 
         }
         public override string ToString()
         {
