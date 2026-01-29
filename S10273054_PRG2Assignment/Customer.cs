@@ -16,7 +16,7 @@ namespace S10273054_PRG2Assignment
         // Attribute
         public string EmailAddress { get; set; }
         public string CustomerName { get; set; }
-        public List<Order> OrderList { get; set; } = new List<Order>();
+        public Dictionary<int, Order> OrderList { get; set; } = new Dictionary<int, Order>();
 
         // Constructors
         public Customer() { }
@@ -29,18 +29,18 @@ namespace S10273054_PRG2Assignment
         // Methods
         public void AddOrder(Order order)
         {
-            OrderList.Add(order);
+            OrderList.Add(order.OrderId, order);
         }
         public void DisplayAllOrders()
         {
-            foreach (Order order in OrderList)
+            foreach (Order order in OrderList.Values)
             {
                 Console.WriteLine(order.ToString());
             }
         }
         public bool RemoveOrder(Order order)
         {
-            return OrderList.Remove(order);
+            return OrderList.Remove(order.OrderId);
         }
         public override string ToString()
         {

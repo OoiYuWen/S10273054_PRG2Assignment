@@ -10,9 +10,10 @@
 using S10273054_PRG2Assignment;
 
 // 2) Load files (customers and orders)
-List<Customer> custList = new List<Customer>();
+Dictionary<string, Customer> custDict = new Dictionary <string, Customer>();
+Dictionary<int, Order> orderDict = new Dictionary<int, Order>();
 
-void LoadCustomers(List<Customer> customers)
+void LoadCustomers(Dictionary<string, Customer> custDict)
 {
     using (StreamReader sr = new StreamReader("customers.csv"))
     {
@@ -23,14 +24,45 @@ void LoadCustomers(List<Customer> customers)
             string name = parts[0];
             string email = parts[1];
             Customer customer = new Customer(email, name);
-            custList.Add(customer);
+            custDict.Add(customer.CustomerName, customer);
         }
     }
 }
+void LoadOrders(Dictionary<int, Order> orderList)
+{
+    using (StreamReader sr = new StreamReader("orders.csv"))
+    {
+        string? s = sr.ReadLine(); // Skip header line
+        while ((s = sr.ReadLine()) != null)
+        {
+            string[] parts = s.Split(',');
+            string orderId = parts[0];
+            string email = parts[1];
+            string restuarantId = parts[2];
+            string deliveryDate = parts[3]; // put as string first to put date and time together to make them DateTime
+            string deliveryTime = parts[4];
+            string deliveryAddress = parts[5];
+            DateTime createdDateTime = Convert.ToDateTime(parts[6]);
+            double totalAmount = Convert.ToDouble(parts[7]);
+            string status = parts[8];
+            string items = parts[9];
+
+            string deliveryDT = parts[3] + " " + parts[4];
+            DateTime deliveryDateTime = Convert.ToDateTime(deliveryDT);
+
+            // Find restaurant
+
+
+            Order order = new Order(orderId, createdDateTime, totalAmount, status, deliveryDateTime, deliveryAddress, "Unknown", false,  );
+            
+        }
+    }
+}
+
 // 1) Load files (restaurants and food items) 
-List<Restaurant> restaurantlist = new List<Restaurant>(); 
+Dictionary<string, Restaurant> restaurantDict = new Dictionary<string, Restaurant>(); 
 List<FoodItem> fooditemlist = new List<FoodItem>();
-void LoadFoodItem (List<FoodItem> fooditemlist, List<Restaurant> restaurantlist)
+void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string, Restaurant> restaurantDict)
 {
     Dictionary<string, Menu> menus = new Dictionary<string, Menu>();
     using (StreamReader sr = new StreamReader("fooditem.csv"))
@@ -69,7 +101,7 @@ void LoadFoodItem (List<FoodItem> fooditemlist, List<Restaurant> restaurantlist)
         }
     }
 }
-void LoadRestaurant(List<Restaurant> restaurantlist)
+void LoadRestaurant(Dictionary<string, Restaurant> restaurantDict)
 {
     using (StreamReader sr = new StreamReader("restaurant.csv"))
     {
@@ -82,7 +114,7 @@ void LoadRestaurant(List<Restaurant> restaurantlist)
             string email = parts[2];
 
             Restaurant restaurant = new Restaurant(id, name, email);
-            restaurantlist.Add(restaurant);
+            restaurantDict.Add(id, restaurant);
         }
     }
 }
