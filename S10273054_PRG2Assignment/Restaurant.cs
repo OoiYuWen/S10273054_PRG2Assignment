@@ -29,12 +29,23 @@ namespace S10273054_PRG2Assignment
         public void DisplayOrders()
         {
             Console.WriteLine("Displaying Orders...");
+
         }
         public void DisplaySpecialOffers()
         {
             foreach(SpecialOffer offer in SpecialOffers)
             {
                 Console.WriteLine(offer);
+                if (OrderQueue.Count == 0)
+                {
+                    Console.WriteLine("No orders have been placed yet.");
+                    return;
+                }
+                foreach(Order order in OrderQueue)
+                {
+                    Console.WriteLine(order.ToString());
+                    Console.WriteLine();
+                }
             }
         }
         public void DisplayMenu()
