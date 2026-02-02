@@ -99,7 +99,7 @@ Customer SearchCustomer(Dictionary<string, Customer> custDict, string emailAddre
 void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string,Menu> MenuList, Dictionary<string, Restaurant> RestaurantDict)
 {
     int counter = 0;
-    using (StreamReader sr = new StreamReader("fooditem.csv"))
+    using (StreamReader sr = new StreamReader("fooditems.csv"))
     {
         string? s = sr.ReadLine();
         while ((s = sr.ReadLine()) != null)
@@ -152,7 +152,7 @@ Restaurant SearchRestaurant(Dictionary<string, Restaurant> RestaurantDict, strin
 void LoadRestaurant(Dictionary<string,Restaurant> RestaurantDict)
 {
     int counter = 0;
-    using (StreamReader sr = new StreamReader("restaurant.csv"))
+    using (StreamReader sr = new StreamReader("restaurants.csv"))
     {
         string? s = sr.ReadLine();
         while ((s = sr.ReadLine()) != null)
