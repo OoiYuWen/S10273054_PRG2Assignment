@@ -108,7 +108,10 @@ void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string,Menu> MenuList
             string restaurantid = parts[0];
             string itemname = parts[1];
             string itemdesc = parts[2];
-            double itemprice = Convert.ToDouble(parts[3]);
+            // find item price 
+            // access the order.csv file and then run through the dictionary
+            //find total amount 
+            
             string customise = "N/A";
 
             FoodItem fooditem = new FoodItem(itemname, itemdesc, itemprice, customise);
