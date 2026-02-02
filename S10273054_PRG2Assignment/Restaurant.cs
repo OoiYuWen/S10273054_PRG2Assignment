@@ -39,10 +39,8 @@ namespace S10273054_PRG2Assignment
         }
         public void DisplayMenu()
         {
-            Console.WriteLine($"--- Menus for {RestaurantName} ---");
             foreach (Menu menu in Menus.Values)
             {
-                Console.WriteLine(menu.ToString());
                 menu.DisplayFoodItem();
             }    
         }

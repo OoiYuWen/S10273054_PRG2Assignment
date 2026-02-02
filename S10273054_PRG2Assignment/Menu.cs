@@ -34,10 +34,9 @@ namespace S10273054_PRG2Assignment
         }
         public void DisplayFoodItem()
         {
-            Console.WriteLine($"Menu:{MenuName}");
             foreach(FoodItem item in FoodItems) // loops through each fooditem object stored in fooditem list 
             {
-                Console.WriteLine(item);
+                Console.WriteLine($"  - {item.ItemName}: {item.ItemDesc} - ${item.ItemPrice.ToString("0.00")}");
             }
         }
         public override string ToString()

@@ -10,7 +10,7 @@
 using Microsoft.VisualBasic;
 using S10273054_PRG2Assignment;
 using System.Numerics;
-//Actual Program Starts Here
+// Actual Program Starts Here
 Console.WriteLine("Welcome to the Gruberoo Food Delivery System");
 
 // Collections to hold data
@@ -26,6 +26,40 @@ LoadRestaurant(RestaurantDict);
 LoadFoodItem(fooditemlist, menuDict, RestaurantDict);
 LoadCustomers(custDict);
 LoadOrders(orderDict, RestaurantDict, custDict);
+
+
+int option = -1;
+
+// Main menu    
+while (option != 0)
+{
+    Console.WriteLine();
+    Console.WriteLine("===== Gruberoo Food Delivery System =====");
+    Console.WriteLine("1. List all restaurants and menu items");
+    Console.WriteLine("2. List all orders");
+    Console.WriteLine("3. Create a new order");
+    Console.WriteLine("4. Process an order");
+    Console.WriteLine("5. Modify an existing order");
+    Console.WriteLine("0. Exit");
+    Console.Write("Enter your choice: ");
+
+    option = Convert.ToInt32(Console.ReadLine());
+    if (option == 1)
+    {
+        // 3) List all restaurants and menu items
+        Console.WriteLine("All Restaurants and Menu Items");
+        Console.WriteLine("==============================");
+        foreach (KeyValuePair<string, Restaurant> kvp in RestaurantDict)
+        {
+            Console.WriteLine($"Restaurant: {kvp.Value.RestaurantName} ({kvp.Key})");
+            kvp.Value.DisplayMenu();
+            Console.WriteLine();
+        }
+       
+    }
+    else
+        break;
+}
 
 // 2) Load files (customers and orders)
 void LoadCustomers(Dictionary<string, Customer> custDict)
