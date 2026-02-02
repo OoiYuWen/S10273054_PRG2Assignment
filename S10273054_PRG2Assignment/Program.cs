@@ -47,6 +47,7 @@ while (option != 0)
     if (option == 1)
     {
         // 3) List all restaurants and menu items
+        Console.WriteLine();
         Console.WriteLine("All Restaurants and Menu Items");
         Console.WriteLine("==============================");
         foreach (KeyValuePair<string, Restaurant> kvp in RestaurantDict)
@@ -119,7 +120,8 @@ void LoadOrders(Dictionary<int, Order> orderList, Dictionary<string, Restaurant>
             string deliveryDate = parts[3]; // put as string first to put date and time together to make them DateTime
             string deliveryTime = parts[4];
             string deliveryAddress = parts[5];
-            DateTime createdDateTime = Convert.ToDateTime(parts[6]);
+            string createdDateTime = (parts[6]);
+            DateTime CreatedDateTime = Convert.ToDateTime(createdDateTime);
             double totalAmount = Convert.ToDouble(parts[7]);
             string status = parts[8];
             string items = parts[9];
@@ -132,7 +134,7 @@ void LoadOrders(Dictionary<int, Order> orderList, Dictionary<string, Restaurant>
             // Find Customer
             Customer c = SearchCustomer(custDict, email);
 
-            Order order = new Order(orderId, createdDateTime, totalAmount, status, deliveryDateTime, deliveryAddress, "Unknown", false, r, c);
+            Order order = new Order(orderId, CreatedDateTime, totalAmount, status, deliveryDateTime, deliveryAddress, "Unknown", false, r, c);
             counter++;
 
             // Add to restaurant's order queue
