@@ -40,11 +40,11 @@ void LoadCustomers(Dictionary<string, Customer> custDict)
             string name = parts[0];
             string email = parts[1];
             Customer customer = new Customer(email, name);
-            custDict.Add(customer.CustomerName, customer);
+            custDict.Add(customer.EmailAddress, customer);
             counter++;
-            Console.WriteLine($"{counter} customers loaded!");
         }
     }
+    Console.WriteLine($"{counter} customers loaded!");
 }
 void LoadOrders(Dictionary<int, Order> orderList, Dictionary<string, Restaurant> RestaurantDict, Dictionary<string, Customer> custDict)
 {
@@ -77,7 +77,6 @@ void LoadOrders(Dictionary<int, Order> orderList, Dictionary<string, Restaurant>
 
             Order order = new Order(orderId, createdDateTime, totalAmount, status, deliveryDateTime, deliveryAddress, "Unknown", false, r, c);
             counter++;
-            Console.WriteLine($"{counter} orders loaded!");
 
             // Add to restaurant's order queue
             r.OrderQueue.Enqueue(order);
@@ -86,6 +85,7 @@ void LoadOrders(Dictionary<int, Order> orderList, Dictionary<string, Restaurant>
 
         }
     }
+    Console.WriteLine($"{counter} orders loaded!");
 }
     
 // Search function for customer
@@ -114,7 +114,6 @@ void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string,Menu> MenuDict
             FoodItem fooditem = new FoodItem(itemname, itemdesc, itemprice, customise);
             fooditemlist.Add(fooditem);
             counter++;
-            Console.WriteLine($"{counter} food items loaded!");
 
             Restaurant r = SearchRestaurant(RestaurantDict, restaurantid);
 
@@ -127,6 +126,7 @@ void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string,Menu> MenuDict
 
         }
     }
+    Console.WriteLine($"{counter} food items loaded!");
 }
 
 Restaurant SearchRestaurant(Dictionary<string, Restaurant> RestaurantDict, string restaurantid)
@@ -169,9 +169,9 @@ void LoadRestaurant(Dictionary<string,Restaurant> RestaurantDict)
             Restaurant restaurant = new Restaurant(id, name, email);
             RestaurantDict.Add(id,restaurant);
             counter++;
-            Console.WriteLine($"{counter} restaurants loaded!");
         }
     }
+    Console.WriteLine($"{counter} restaurants loaded!");
 }
 
 // 4) List all orders with basic information
