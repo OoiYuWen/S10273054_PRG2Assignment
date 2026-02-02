@@ -55,7 +55,30 @@ while (option != 0)
             kvp.Value.DisplayMenu();
             Console.WriteLine();
         }
-     
+    }
+
+    else if (option == 2)
+    {
+
+    }
+
+    else if (option == 3)
+    {
+        Console.WriteLine("Create New Order");
+        Console.WriteLine("================");
+        Console.Write("Enter Customer Email: ");
+        string CustEmail = Console.ReadLine();
+        string RestID = Console.ReadLine();
+
+        Console.Write("Enter Delivery Date (dd/mm/yyyy):");
+        DateTime DeliveryD = Convert.ToDateTime(Console.ReadLine());
+
+        Console.Write("Enter Delivery Time (hh:mm):");
+        DateTime DeliveryT = Convert.ToDateTime(Console.ReadLine());
+
+        Console.Write("Enter Delivery Address:");
+        string DeliveryAddr = Console.ReadLine();
+
     }
     else
         break;
