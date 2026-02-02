@@ -99,7 +99,7 @@ Customer SearchCustomer(Dictionary<string, Customer> custDict, string emailAddre
 void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string,Menu> MenuList, Dictionary<string, Restaurant> RestaurantDict)
 {
     int counter = 0;
-    using (StreamReader sr = new StreamReader("fooditems.csv"))
+    using (StreamReader sr = new StreamReader("fooditems - Copy.csv"))
     {
         string? s = sr.ReadLine();
         while ((s = sr.ReadLine()) != null)
@@ -108,10 +108,7 @@ void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string,Menu> MenuList
             string restaurantid = parts[0];
             string itemname = parts[1];
             string itemdesc = parts[2];
-            // find item price 
-            // access the order.csv file and then run through the dictionary
-            //find total amount 
-            
+            double itemprice = Convert.ToDouble(parts[3]);
             string customise = "N/A";
 
             FoodItem fooditem = new FoodItem(itemname, itemdesc, itemprice, customise);
