@@ -17,13 +17,13 @@ Console.WriteLine("Welcome to the Gruberoo Food Delivery System");
 Dictionary<string, Customer> custDict = new Dictionary<string, Customer>();
 Dictionary<int, Order> orderDict = new Dictionary<int, Order>();
 
-Dictionary<string, Menu> menus = new Dictionary<string, Menu>();
+Dictionary<string, Menu> menuDict = new Dictionary<string, Menu>();
 List<FoodItem> fooditemlist = new List<FoodItem>();
 Dictionary<string, Restaurant> RestaurantDict = new Dictionary<string, Restaurant>();
 
 // Load Data from CSV files
 LoadRestaurant(RestaurantDict);
-LoadFoodItem(fooditemlist, menus, RestaurantDict);
+LoadFoodItem(fooditemlist, menuDict, RestaurantDict);
 LoadCustomers(custDict);
 LoadOrders(orderDict, RestaurantDict, custDict);
 
@@ -96,7 +96,7 @@ Customer SearchCustomer(Dictionary<string, Customer> custDict, string emailAddre
 
 
 // 1) Load files (restaurants and food items) 
-void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string,Menu> MenuList, Dictionary<string, Restaurant> RestaurantDict)
+void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string,Menu> MenuDict, Dictionary<string, Restaurant> RestaurantDict)
 {
     int counter = 0;
     using (StreamReader sr = new StreamReader("fooditems - Copy.csv"))
@@ -116,11 +116,15 @@ void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string,Menu> MenuList
             counter++;
             Console.WriteLine($"{counter} food items loaded!");
 
-            Menu menu = new Menu("001", "Main Menu");
-            menu.AddFoodItem(fooditem);
-
             Restaurant r = SearchRestaurant(RestaurantDict, restaurantid);
-            r.AddMenu(menu);
+
+            // Check if restaurant has a '001' menu
+            if (!r.Menus.ContainsKey("001"))
+            {
+                r.AddMenu(new Menu("001", "Main Menu"));
+            }
+            r.Menus["001"].AddFoodItem(fooditem);
+
         }
     }
 }
