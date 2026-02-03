@@ -108,7 +108,7 @@ void LoadOrders(Dictionary<int, Order> orderList, Dictionary<string, Restaurant>
             // Find Customer
             Customer c = SearchCustomer(custDict, email);
 
-            Order order = new Order(orderId, CreatedDateTime, totalAmount, status, deliveryDateTime, deliveryAddress, "Unknown", false, r, c);
+            Order order = new Order(orderId, CreatedDateTime, totalAmount, status, deliveryDateTime, deliveryAddress, "Unknown", true, r, c);
             counter++;
             // ✅ Add to global order dictionary
             orderList.Add(orderId, order);
@@ -163,10 +163,13 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
     Restaurant r = SearchRestaurant(RestaurantDict, RestID);
 
     Console.Write("Enter Delivery Date (dd/mm/yyyy):");
-    DateTime DeliveryD = Convert.ToDateTime(Console.ReadLine());
+    string DeliveryD = Console.ReadLine();
 
     Console.Write("Enter Delivery Time (hh:mm):");
-    DateTime DeliveryT = Convert.ToDateTime(Console.ReadLine());
+    string DeliveryT = Console.ReadLine();
+
+    string deliveryDateTime = DeliveryD + " " + DeliveryT;
+    DateTime DeliveryDT = Convert.ToDateTime(deliveryDateTime);
 
     Console.Write("Enter Delivery Address:");
     string DeliveryAddr = Console.ReadLine();
@@ -196,7 +199,7 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
     // User inputs
 
     int itemNo = -1;
-    double totalAmount = 0.0;
+    Order newOrder = new Order();
     while (itemNo != 0)
     {
         Console.Write("Enter item number (0 to finish): ");
@@ -220,22 +223,40 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
         // Calculate subtotal
         double subtotal = qty * selectedFoodItem.ItemPrice;
 
-        // Create OrderedFoodItem and add to orderedFoodItem List
+        // Create OrderedFoodItem and add to orderedFoodItem List.
         OrderedFoodItem ofi = new OrderedFoodItem(selectedFoodItem.ItemName, selectedFoodItem.ItemDesc, selectedFoodItem.ItemPrice, selectedFoodItem.Customise, qty, subtotal);
-        orderedItems.Add(ofi);
-
-        totalAmount += subtotal;
-
-        // Add OrderedFoodItem to Order's OrderedFoodItem list
+        orderedItems.Add(ofi);  // Adding order to global list - Might not need
+        newOrder.AddOrderedFoodItem(ofi); // Adding to Order's OrderedFoodItem list directly
+        
     }
 
     Console.Write("Add special request? [Y/N]: ");
     string specialReq = Console.ReadLine();
+    if (specialReq == "Y")
+    {
+        Console.Write("Enter special request: ");
+        string request = Console.ReadLine();
+        // Loop through the customer's ordered food items to add the special request to each item
+        foreach(OrderedFoodItem ofi in newOrder.OrderList)
+        {
+            ofi.Customise = request;
+        }
+    }
+    else if (specialReq == "N")
+    {
+        Console.WriteLine("No special request added.");
+    }
+    else
+    {
+        Console.WriteLine("Invalid option, no special request added.");
+    }
     Console.WriteLine();
 
     // Calculate total amount
+    double totalAmount = newOrder.CalculateOrderTotal();    // After adding the OrderedFoodItems to the Order's OrderedFoodItem list, calculate the total amount
     double delivery = 5.00;
-    Console.WriteLine($"Order Total: ${totalAmount} + ${delivery} (delivery) = ${totalAmount + delivery}");
+    Console.WriteLine($"Order Total: ${totalAmount.ToString("0.00")} + ${delivery.ToString("0.00")} (delivery) = ${(totalAmount + delivery).ToString("0.00")}");
+
     Console.Write("Proceed to payment? [Y/N]: ");
     string proceed = Console.ReadLine();
     Console.WriteLine();
@@ -244,11 +265,62 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
     {
         Console.WriteLine("Payment method: ");
         Console.Write("[CC] Credit Card / [PP] PayPal / [CD] Cash on Delivery: ");
+
         string paymentMethod = Console.ReadLine().ToUpper();
         Console.WriteLine();
-        Console.WriteLine($"Order {1004} created successfully! Status: {"pending"}");
 
-        // Save payment method
+        // Creating the New Order's ID by taking most recent orderID + 1
+        int HighestOrderID = orderDict.Keys.Max();  // Keys are the order IDs in int, so Max() looks for the highest order ID
+        int OrderId = HighestOrderID + 1;
+
+
+        // Creating Order CreatedDateTime
+        DateTime CreatedDateTime = DateTime.Now;
+
+
+        // No need create another order object, just update all the values of the newOrder object created earlier
+        newOrder.OrderId = OrderId;
+        newOrder.OrderDateTime = CreatedDateTime;
+        newOrder.OrderTotal = totalAmount + delivery;
+        newOrder.OrderStatus = "Pending";
+        newOrder.DeliveryDateTime = DeliveryDT;
+        newOrder.DeliveryAddress = DeliveryAddr;
+        newOrder.OrderPaymentMethod = paymentMethod;
+        newOrder.OrderPaid = true;
+        newOrder.Customer = c;
+        newOrder.Restaurant = r;
+
+
+        // Creating new order object to be added to customer, restaurant, and global order dictionary
+        // Add to customer OrderList
+        c.AddOrder(newOrder);
+        // Add to restaurant's order queue
+        r.OrderQueue.Enqueue(newOrder);
+        // Add to global order dictionary
+        orderDict.Add(OrderId, newOrder);
+
+        // Formatting the items for CSV
+        string orderedItemsString = "";
+
+        foreach (OrderedFoodItem item in newOrder.OrderList)
+        {
+            // Add "ItemName, Quantity"
+            orderedItemsString += item.ItemName + ", " + item.QtyOrdered;
+
+            // Add separator if not the last item
+            if (item != newOrder.OrderList.Last())
+            {
+                orderedItemsString += "|";
+            }
+        }
+
+        // Appending new order to orders - Copy.csv
+        using (StreamWriter sw = new StreamWriter("orders - Copy.csv", true))
+        {
+            sw.WriteLine($"{newOrder.OrderId}," + $"{CustEmail}," + $"{RestID}," + $"{DeliveryD:dd/MM/yyyy}," + $"{DeliveryT:HH:mm}," + $"{DeliveryAddr}," + $"{CreatedDateTime:dd/MM/yyyy HH:mm}," + $"{totalAmount + delivery:F2}," + $"{newOrder.OrderStatus}," + $"\"{orderedItemsString}\"");
+        }
+
+        Console.WriteLine($"Order {OrderId} created successfully! Status: {newOrder.OrderStatus}");
 
     }
     else if (proceed == "N")
@@ -260,6 +332,7 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
     {
         Console.WriteLine("Invalid option, try again.");
     }
+
 }
 
 // 1) Load files (restaurants and food items) 
@@ -346,5 +419,6 @@ void DisplayMainMenu()
     Console.WriteLine("3. Create a new order");
     Console.WriteLine("4. Process an order");
     Console.WriteLine("5. Modify an existing order");
+    Console.WriteLine("6. Delete an existing order");
     Console.WriteLine("0. Exit");
 }
