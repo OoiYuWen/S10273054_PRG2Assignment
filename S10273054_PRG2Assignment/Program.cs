@@ -129,11 +129,13 @@ void LoadOrders(Dictionary<int, Order> orderList, Dictionary<string, Restaurant>
     Console.WriteLine($"{counter} orders loaded!");
 }
     
+    
 // Search function for customer
 Customer SearchCustomer(Dictionary<string, Customer> custDict, string emailAddress)
 {
     return custDict[emailAddress];
 }
+
 
 // Basic feature 3 method
 void Displayrestaurants_MenuItems(Dictionary<string, Restaurant> RestaurantDict)
@@ -252,92 +254,19 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
         Console.WriteLine();
         Console.WriteLine($"Order {1004} created successfully! Status: {"pending"}");
 
-            // Save payment method
-            
-        }
-        if (proceed == "N")
-        {
-            Console.WriteLine("Cancelled payment. Exiting order feature...");
-            continue;
-        }
-        else
-        {
-            Console.WriteLine("Invalid option, try again.");
-        }
-    }
+        // Save payment method
 
+    }
+    if (proceed == "N")
+    {
+        Console.WriteLine("Cancelled payment. Exiting order feature...");
+        return;
+    }
     else
-        break;
-}
-
-// 2) Load files (customers and orders)
-void LoadCustomers(Dictionary<string, Customer> custDict)
-{
-    int counter = 0;
-    using (StreamReader sr = new StreamReader("customers.csv"))
     {
-        string? s = sr.ReadLine(); // Skip header line
-        while ((s = sr.ReadLine()) != null)
-        {
-            string[] parts = s.Split(',');
-            string name = parts[0];
-            string email = parts[1];
-            Customer customer = new Customer(email, name);
-            custDict.Add(customer.EmailAddress, customer);
-            counter++;
-        }
+        Console.WriteLine("Invalid option, try again.");
     }
-    Console.WriteLine($"{counter} customers loaded!");
 }
-void LoadOrders(Dictionary<int, Order> orderList, Dictionary<string, Restaurant> RestaurantDict, Dictionary<string, Customer> custDict)
-{
-    int counter = 0;
-    // Read orders csv and create order objects
-    using (StreamReader sr = new StreamReader("orders - Copy.csv"))
-    {
-        string? s = sr.ReadLine(); // Skip header line
-        while ((s = sr.ReadLine()) != null)
-        {
-            string[] parts = s.Split(',');
-            int orderId = Convert.ToInt32(parts[0]);
-            string email = parts[1];
-            string restuarantId = parts[2];
-            string deliveryDate = parts[3]; // put as string first to put date and time together to make them DateTime
-            string deliveryTime = parts[4];
-            string deliveryAddress = parts[5];
-            string createdDateTime = (parts[6]);
-            DateTime CreatedDateTime = Convert.ToDateTime(createdDateTime);
-            double totalAmount = Convert.ToDouble(parts[7]);
-            string status = parts[8];
-            string items = parts[9];
-
-            string deliveryDT = parts[3] + " " + parts[4];
-            DateTime deliveryDateTime = Convert.ToDateTime(deliveryDT);
-
-            // Find restaurant
-            Restaurant r = SearchRestaurant(RestaurantDict, restuarantId);
-            // Find Customer
-            Customer c = SearchCustomer(custDict, email);
-
-            Order order = new Order(orderId, CreatedDateTime, totalAmount, status, deliveryDateTime, deliveryAddress, "Unknown", false, r, c);
-            counter++;
-
-            // Add to restaurant's order queue
-            r.OrderQueue.Enqueue(order);
-            // Add to customer's order list
-            c.AddOrder(order);
-
-        }
-    }
-    Console.WriteLine($"{counter} orders loaded!");
-}
-    
-// Search function for customer
-Customer SearchCustomer(Dictionary<string, Customer> custDict, string emailAddress)
-{
-    return custDict[emailAddress];
-}
-
 
 // 1) Load files (restaurants and food items) 
 void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string,Menu> MenuDict, Dictionary<string, Restaurant> RestaurantDict)
