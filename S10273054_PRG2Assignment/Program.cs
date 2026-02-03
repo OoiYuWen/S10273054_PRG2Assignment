@@ -349,7 +349,6 @@ void LoadRestaurant(Dictionary<string,Restaurant> RestaurantDict)
 
 // 4) List all orders with basic information
 void DisplayAllOrders(Dictionary<int,Order> orderDict)
-//List<Customer> customers, List<Restaurant> restaurantlist
 {
     Console.WriteLine("All Orders");
     Console.WriteLine("==========");
