@@ -259,7 +259,7 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
         // Save payment method
 
     }
-    if (proceed == "N")
+    else if (proceed == "N")
     {
         Console.WriteLine("Cancelled payment. Exiting order feature...");
         return;
