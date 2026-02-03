@@ -64,13 +64,15 @@ while (option != 0)
     else if (option == 2)
     {
         // List all orders
-        Console.WriteLine("All Orders");
+        /*Console.WriteLine("All Orders");
         Console.WriteLine("==========");
         Console.WriteLine($"{"Order ID",-10} {"Customer",-15} {"Restaurant",-15} {"Delivery Date/Time",-20} {"Amount",-10} {"Status",-10}");
         foreach(Order order in orderDict.Values)
         {
             Console.WriteLine($"{order.OrderId,-10} {order.Customer.CustomerName,-15} {order.Restaurant.RestaurantName,-15} {order.DeliveryDateTime,-20} {order.OrderTotal,-10:F2} {order.OrderStatus,-10}");
-        }
+
+        }*/
+        DisplayAllOrders(orderDict);
     }
 
     else if (option == 3)
@@ -241,6 +243,9 @@ void LoadOrders(Dictionary<int, Order> orderList, Dictionary<string, Restaurant>
 
             Order order = new Order(orderId, CreatedDateTime, totalAmount, status, deliveryDateTime, deliveryAddress, "Unknown", false, r, c);
             counter++;
+            // ✅ Add to global order dictionary
+            orderList.Add(orderId, order);
+
 
             // Add to restaurant's order queue
             r.OrderQueue.Enqueue(order);
@@ -339,10 +344,16 @@ void LoadRestaurant(Dictionary<string,Restaurant> RestaurantDict)
 }
 
 // 4) List all orders with basic information
-void DisplayAllOrders(List<Order> orders, List<Customer> customers, List<Restaurant> restaurantlist)
+void DisplayAllOrders(Dictionary<int,Order> orderDict)
+    /*List<Customer> customers, List<Restaurant> restaurantlist*/
 {
     Console.WriteLine("All Orders");
     Console.WriteLine("==========");
     Console.WriteLine($"{"Order ID",-10} {"Customer",-15} {"Restaurant",-15} {"Delivery Date/Time",-20} {"Amount",-10} {"Status",-10}");
     Console.WriteLine($"{"--------",-10} {"----------",-15} {"-------------",-15} {"------------------",-20} {"------",-10} {"---------",-10}");
+    foreach (Order order in orderDict.Values)
+    {
+        Console.WriteLine($"{order.OrderId,-10} {order.Customer.CustomerName,-15} {order.Restaurant.RestaurantName,-15} {order.DeliveryDateTime,-20} {order.OrderTotal,-10:F2} {order.OrderStatus,-10}");
+
+    }
 }
