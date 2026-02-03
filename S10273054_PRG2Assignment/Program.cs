@@ -63,7 +63,14 @@ while (option != 0)
 
     else if (option == 2)
     {
-
+        // List all orders
+        Console.WriteLine("All Orders");
+        Console.WriteLine("==========");
+        Console.WriteLine($"{"Order ID",-10} {"Customer",-15} {"Restaurant",-15} {"Delivery Date/Time",-20} {"Amount",-10} {"Status",-10}");
+        foreach(Order order in orderDict.Values)
+        {
+            Console.WriteLine($"{order.OrderId,-10} {order.Customer.CustomerName,-15} {order.Restaurant.RestaurantName,-15} {order.DeliveryDateTime,-20} {order.OrderTotal,-10:F2} {order.OrderStatus,-10}");
+        }
     }
 
     else if (option == 3)
