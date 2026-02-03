@@ -118,12 +118,14 @@ void LoadOrders(Dictionary<int, Order> orderList, Dictionary<string, Restaurant>
 
             Order order = new Order(orderId, CreatedDateTime, totalAmount, status, deliveryDateTime, deliveryAddress, "Unknown", false, r, c);
             counter++;
+            // ✅ Add to global order dictionary
+            orderList.Add(orderId, order);
 
             // Add to restaurant's order queue
             r.OrderQueue.Enqueue(order);
             // Add to customer's order list
             c.AddOrder(order);
-
+            
         }
     }
     Console.WriteLine($"{counter} orders loaded!");
