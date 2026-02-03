@@ -10,6 +10,7 @@
 using Microsoft.VisualBasic;
 using S10273054_PRG2Assignment;
 using System.Numerics;
+using System.Runtime.CompilerServices;
 // Actual Program Starts Here
 Console.WriteLine("Welcome to the Gruberoo Food Delivery System");
 
@@ -20,6 +21,8 @@ Dictionary<int, Order> orderDict = new Dictionary<int, Order>();
 Dictionary<string, Menu> menuDict = new Dictionary<string, Menu>();
 List<FoodItem> fooditemlist = new List<FoodItem>();
 Dictionary<string, Restaurant> RestaurantDict = new Dictionary<string, Restaurant>();
+
+List<OrderedFoodItem> orderedItems = new List<OrderedFoodItem>();
 
 // Load Data from CSV files
 LoadRestaurant(RestaurantDict);
@@ -67,9 +70,17 @@ while (option != 0)
     {
         Console.WriteLine("Create New Order");
         Console.WriteLine("================");
+
         Console.Write("Enter Customer Email: ");
         string CustEmail = Console.ReadLine();
+        // Find customer
+        Customer c = SearchCustomer(custDict, CustEmail);
+
+
+        Console.Write("Enter Restaurant ID: ");
         string RestID = Console.ReadLine();
+        // Find restaurant
+        Restaurant r = SearchRestaurant(RestaurantDict, RestID);
 
         Console.Write("Enter Delivery Date (dd/mm/yyyy):");
         DateTime DeliveryD = Convert.ToDateTime(Console.ReadLine());
@@ -80,7 +91,94 @@ while (option != 0)
         Console.Write("Enter Delivery Address:");
         string DeliveryAddr = Console.ReadLine();
 
+        // Showing available food items
+        Console.WriteLine();
+        Console.WriteLine("Available Food Items:");
+        List<FoodItem> foodList = new List<FoodItem>(); // Temporary list to hold food items
+        foreach (Restaurant res in RestaurantDict.Values)
+        {
+            if(res.RestaurantId == RestID)
+            {
+
+                foreach (Menu m in res.Menus.Values)
+                {
+                    int count = 0;
+                    foreach (FoodItem fi in m.FoodItems)
+                    {
+                        count++;
+                        foodList.Add(fi);  // Store items for lookup later
+                        Console.WriteLine($"{count}. {fi.ItemName} - ${fi.ItemPrice.ToString("0.00")}");
+                    }
+                }
+            }
+        }
+
+        // User inputs
+
+        int itemNo = -1;
+        double totalAmount = 0.0;
+        while (itemNo != 0)
+        {
+            Console.Write("Enter item number (0 to finish): ");
+            itemNo = Convert.ToInt32(Console.ReadLine());
+
+            if (itemNo == 0)
+                break;
+
+            if (option < 1 || option > foodList.Count)
+            {
+                Console.WriteLine("Invalid option, try again.");
+                continue;
+            }
+
+            Console.Write("Enter quantity: ");
+            int qty = Convert.ToInt32(Console.ReadLine());
+
+            // Find chosen item
+            FoodItem selectedFoodItem = foodList[itemNo - 1];
+
+            // Calculate subtotal
+            double subtotal = qty * selectedFoodItem.ItemPrice;
+
+            // Create OrderedFoodItem and add to orderedFoodItem List
+            OrderedFoodItem ofi = new OrderedFoodItem(selectedFoodItem.ItemName, selectedFoodItem.ItemDesc, selectedFoodItem.ItemPrice, selectedFoodItem.Customise, qty, subtotal);
+            orderedItems.Add(ofi);
+
+            totalAmount += subtotal;
+        }
+        Console.Write("Add special request? [Y/N]: ");
+        string specialReq = Console.ReadLine();
+        Console.ReadLine();
+
+        // Calculate total amount
+        double delivery = 5.00;
+        Console.WriteLine($"Order Total: ${totalAmount} + ${delivery} (delivery) = ${totalAmount + delivery}");
+        Console.Write("Proceed to payment? [Y/N]: ");
+        string proceed = Console.ReadLine();
+        Console.WriteLine();
+
+        if (proceed == "Y")
+        {
+            Console.WriteLine("Payment method: ");
+            Console.Write("[CC] Credit Card / [PP] PayPal / [CD] Cash on Delivery: ");
+            string paymentMethod = Console.ReadLine().ToUpper();
+            Console.WriteLine();
+            Console.WriteLine($"Order {} created successfully! Status: {}");
+
+            // Save payment method
+            
+        }
+        if (proceed == "N")
+        {
+            Console.WriteLine("Cancelled payment. Exiting order feature...");
+            continue;
+        }
+        else
+        {
+            Console.WriteLine("Invalid option, try again.");
+        }
     }
+
     else
         break;
 }
