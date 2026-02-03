@@ -49,14 +49,6 @@ while (option != 0)
     else if (option == 2)
     {
         // List all orders
-        /*Console.WriteLine("All Orders");
-        Console.WriteLine("==========");
-        Console.WriteLine($"{"Order ID",-10} {"Customer",-15} {"Restaurant",-15} {"Delivery Date/Time",-20} {"Amount",-10} {"Status",-10}");
-        foreach (Order order in orderDict.Values)
-        {
-            Console.WriteLine($"{order.OrderId,-10} {order.Customer.CustomerName,-15} {order.Restaurant.RestaurantName,-15} {order.DeliveryDateTime,-20} {order.OrderTotal,-10:F2} {order.OrderStatus,-10}");
-
-        }*/
         DisplayAllOrders(orderDict);
     }
 
@@ -308,26 +300,7 @@ Restaurant SearchRestaurant(Dictionary<string, Restaurant> RestaurantDict, strin
 {
     return RestaurantDict[restaurantid];
 }
-// Extra information: 
-//create restaurant, create menu, use function to add fooditem to menu, then menu add to restaurant
-           /*Restaurant restaurant = null;
-            foreach(Restaurant r in restaurantlist)
-            {
-                restaurant = r;
-                continue;
-            }
-            if (r != null)
-            {
-                // Create a new menu for the restaurant if it doesn't exist 
-                if (!menus.ContainsKey(restaurantid)) //this checks whether there is a menu already or not 
-                {
-                    Menu newMenu = new Menu("M" + restaurantid, restaurant.RestaurantName + " Menu"); 
-                    menus[restaurantid] = newMenu;
-                    restaurant.AddMenu(newMenu);
-                }
-                // Add the food item to the restaurant's menu
-                menus[restaurantid].AddFoodItem(fooditem);
-            }  */
+
 void LoadRestaurant(Dictionary<string,Restaurant> RestaurantDict)
 {
     int counter = 0;
