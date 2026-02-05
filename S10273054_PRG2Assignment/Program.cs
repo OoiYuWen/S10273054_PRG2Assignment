@@ -603,7 +603,6 @@ void DisplayAllOrders(Dictionary<int,Order> orderDict)
     foreach (Order order in orderDict.Values)
     {
         Console.WriteLine($"{order.OrderId,-10} {order.Customer.CustomerName,-15} {order.Restaurant.RestaurantName,-15} {order.DeliveryDateTime,-20} {order.OrderTotal,-10:F2} {order.OrderStatus,-10}");
-
     }
 }
 
@@ -720,6 +719,81 @@ void ProcessAnOrder(Dictionary<int,Order> orderDict)
         }
         Console.WriteLine($"Order {currentOrder.OrderId} confirmed. Status: {currentOrder.OrderStatus}");
         break;
+    }
+}
+
+// 8) Delete an exsiting order
+void Deleteexistingorder(Dictionary<int, Order> orderDict, Stack<Order> refundstack)
+{
+    Console.WriteLine("Delete Order");
+    Console.WriteLine("============");
+
+    // Prompt to enter customer email 
+    Console.Write("Enter Customer Email: ");
+    string CustEmail = Console.ReadLine();
+
+    // Find the customer
+    Customer customer = SearchCustomer(custDict, CustEmail);
+    
+    if (customer == null)
+    {
+        Console.WriteLine("Customer not found.");
+        return;
+    }
+
+    // Display pending order
+    Console.WriteLine("\nPending Orders: ");
+    int PendingCount = 0;
+
+    foreach (Order order in customer.OrderList.Values)
+    {
+        if (order.OrderStatus == "Pending")
+        {
+            Console.WriteLine(order.OrderId);
+            PendingCount++;
+        }
+    }
+
+    if (PendingCount == 0)
+    {
+        Console.WriteLine("No pending orders found.");
+    }
+
+    // Prompt for OrderID
+    Console.Write("Enter Order ID: ");
+    int orderId = Convert.ToInt32(Console.ReadLine());
+
+    if (!customer.OrderList.ContainsKey(orderId))
+    {
+        Console.WriteLine("Order ID not found.");
+        return;
+    }
+
+    Order selectedOrder = customer.OrderList[orderId];
+    if (selectedOrder.OrderStatus != "Pending")
+    {
+        Console.WriteLine("Order is not pending.");
+    }
+
+    // Display Order Information
+    Console.WriteLine($"\nCustomer: {customer.CustomerName}");
+    selectedOrder.DisplayOrderedFoodItems();
+
+    // Confirm deletion
+    Console.Write("\nConfirm deletion? [Y/N]: ");
+    string confirm = Console.ReadLine().ToUpper();
+
+    if (confirm == "Y")
+    {
+        // Cancel Order and push to refund stack
+        selectedOrder.OrderStatus = "Cancelled";
+        refundstack.Push(selectedOrder);
+
+        Console.WriteLine($"Order {selectedOrder.OrderId} cancelled. Refund of {selectedOrder.OrderTotal} processed.");
+    }
+    else
+    {
+        Console.WriteLine("Order deletion cancelled.");
     }
 }
 

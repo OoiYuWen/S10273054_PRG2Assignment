@@ -29,6 +29,10 @@ namespace S10273054_PRG2Assignment
         public void DisplayOrders() // do this*******
         {
             Console.WriteLine("Displaying Orders...");
+            foreach (var order in OrderQueue)
+            {
+                Console.WriteLine(order.ToString());
+            }
         }
         public void DisplaySpecialOffers()
         {
