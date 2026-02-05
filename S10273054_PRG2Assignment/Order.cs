@@ -24,7 +24,7 @@ namespace S10273054_PRG2Assignment
         public bool OrderPaid { get; set; }
         public Restaurant Restaurant { get; set; }  // Bidrectional Association
         public Customer Customer { get; set; }      // Bidrectional Association
-        public List<OrderedFoodItem> OrderList { get; set; } = new List<OrderedFoodItem>();   // OrderedList
+        public List<OrderedFoodItem> OrderedList { get; set; } = new List<OrderedFoodItem>();   // OrderedList
 
         // Constructor
         public Order() { }
@@ -46,7 +46,7 @@ namespace S10273054_PRG2Assignment
         public double CalculateOrderTotal()
         {
             double total = 0;
-            foreach (OrderedFoodItem item in OrderList)
+            foreach (OrderedFoodItem item in OrderedList)
             {
                 total += item.SubTotal;
             }
@@ -54,11 +54,11 @@ namespace S10273054_PRG2Assignment
         }
         public void AddOrderedFoodItem(OrderedFoodItem orderedFoodItem)
         {
-            OrderList.Add(orderedFoodItem);
+            OrderedList.Add(orderedFoodItem);
         }
         public bool RemoveOrderedFoodItem(OrderedFoodItem orderedFoodItem)
         {
-            if (OrderList.Remove(orderedFoodItem))
+            if (OrderedList.Remove(orderedFoodItem))
             {
                 return true;
             }
@@ -69,7 +69,7 @@ namespace S10273054_PRG2Assignment
         }
         public void DisplayOrderedFoodItems()
         {
-            foreach (OrderedFoodItem item in OrderList)
+            foreach (OrderedFoodItem item in OrderedList)
             {
                 Console.WriteLine("Quantity ordered: " + item.QtyOrdered + "\tSubtotal: " + item.SubTotal);
             }
