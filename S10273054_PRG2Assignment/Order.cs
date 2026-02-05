@@ -69,9 +69,14 @@ namespace S10273054_PRG2Assignment
         }
         public void DisplayOrderedFoodItems()
         {
+            int count = 0;
             foreach (OrderedFoodItem item in OrderedList)
             {
-                Console.WriteLine("Quantity ordered: " + item.QtyOrdered + "\tSubtotal: " + item.SubTotal);
+                count++;
+                Console.WriteLine($"{count}. {item.ItemName} - {item.QtyOrdered}");
+                Console.WriteLine($"Delivery date/time: {DeliveryDateTime}");
+                Console.WriteLine($"Total Amount: ${item.SubTotal}");
+                Console.WriteLine($"Order Status: {OrderStatus}");
             }
         }
         public override string ToString()

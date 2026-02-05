@@ -24,6 +24,8 @@ Dictionary<string, Restaurant> RestaurantDict = new Dictionary<string, Restauran
 
 List<OrderedFoodItem> orderedItems = new List<OrderedFoodItem>();  // Might not need this since adding to Order's OrderedFoodItem list directly. Might remove this and the code below in feature 5
 
+Stack<Order> refundstack = new Stack<Order>(); // basic feature 6 - refund stack 
+
 // Load Data from CSV files
 LoadRestaurant(RestaurantDict);
 LoadFoodItem(fooditemlist, menuDict, RestaurantDict);
@@ -605,7 +607,121 @@ void DisplayAllOrders(Dictionary<int,Order> orderDict)
     }
 }
 
+// 6) Process an order
+void ProcessAnOrder(Dictionary<int,Order> orderDict)
+    // loop through order queue 
+{
+    Console.WriteLine("Process Order");
+    Console.WriteLine("=============");
+    Console.Write("Enter Restaurant ID: ");
+    string resID = Console.ReadLine();
 
+    Restaurant r = SearchRestaurant(RestaurantDict, resID);
+    for (int i = 0; i < r.OrderQueue.Count; i++)
+    {
+        Order currentOrder = r.OrderQueue.Peek();
+        Console.WriteLine($"Order {currentOrder.OrderId}");
+        string CustName = currentOrder.Customer.CustomerName;
+        Console.WriteLine($"Customer: {CustName}");
+        Console.WriteLine("Ordered Items: ");
+        currentOrder.DisplayOrderedFoodItems();
+
+        Console.Write("[C]onfirm / [R]eject / [S]kip / [D]eliver: ");
+        string choice = Console.ReadLine().ToLower();
+
+        // remove the first order
+        Order firstOrder = r.OrderQueue.Dequeue();
+        // Place it at the back 
+        r.OrderQueue.Enqueue(firstOrder);
+        if (currentOrder.OrderStatus == "Pending")
+        {
+            if (choice == "c")
+            {
+                currentOrder.OrderStatus = "Preparing";
+            }
+            else if (choice == "r")
+            {
+                if (currentOrder.OrderStatus == "Pending")
+                {
+                    currentOrder.OrderStatus = "Rejected";
+                    refundstack.Push(currentOrder);
+                    Console.WriteLine($"Order {currentOrder.OrderId} rejected. Added to refund stack.");
+                }
+            }
+            else if (choice == "s")
+            {
+                Console.WriteLine("The order has been skipped");
+            }
+            else if (choice == "d")
+            {
+                Console.WriteLine("The order has not been prepared thus unable to deliver.");
+            }
+        }
+
+        else if (currentOrder.OrderStatus == "Preparing")
+        {
+            if (choice == "c")
+            {
+                Console.WriteLine("The order is being prepared.");
+            }
+            else if (choice == "r")
+            {
+                Console.WriteLine("The order cannot be cancelled.");
+            }
+            else if (choice == "s")
+            {
+                Console.WriteLine("The order has been skipped");
+            }
+            else if (choice == "d")
+            {
+                currentOrder.OrderStatus = "Delivered";
+            }
+        }
+
+        else if (currentOrder.OrderStatus == "Delivered")
+        {
+            if (choice == "c")
+            {
+                Console.WriteLine("The order is being delivered, it has already been confirmed.");
+            }
+            else if (choice == "r")
+            {
+                Console.WriteLine("The order cannot be rejected");
+            }
+            else if (choice == "s")
+            {
+                Console.WriteLine("The order has been skipped");
+            }
+            else if (choice == "d")
+            {
+                Console.WriteLine("The order is being delivered.");
+            }
+        }
+
+        else if (currentOrder.OrderStatus == "Cancelled")
+        {
+            if (choice == "c")
+            {
+                Console.WriteLine("The order has been cancelled.");
+            }
+            else if (choice == "r")
+            {
+                Console.WriteLine("The order has been declined");
+            }
+            else if (choice == "s")
+            {
+                Console.WriteLine($"Order {currentOrder.OrderId} skipped (Cancelled)");
+                continue;
+            }
+            else if (choice == "d")
+            {
+                Console.WriteLine("The order has been cancelled thus unable to be delivered.");
+            }
+        }
+        Console.WriteLine($"Order {currentOrder.OrderId} confirmed. Status: {currentOrder.OrderStatus}");
+        break;
+    }
+}
 
 // Display Main menu method
 void DisplayMainMenu()

@@ -26,10 +26,9 @@ namespace S10273054_PRG2Assignment
             RestaurantName = restaurantName;
             RestaurantEmail = restaurantEmail;
         }
-        public void DisplayOrders()
+        public void DisplayOrders() // do this*******
         {
             Console.WriteLine("Displaying Orders...");
-
         }
         public void DisplaySpecialOffers()
         {
