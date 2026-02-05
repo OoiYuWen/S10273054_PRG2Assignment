@@ -640,12 +640,9 @@ void ProcessAnOrder(Dictionary<int,Order> orderDict)
             }
             else if (choice == "r")
             {
-                if (currentOrder.OrderStatus == "Pending")
-                {
                     currentOrder.OrderStatus = "Rejected";
                     refundstack.Push(currentOrder);
                     Console.WriteLine($"Order {currentOrder.OrderId} rejected. Added to refund stack.");
-                }
             }
             else if (choice == "s")
             {
@@ -665,7 +662,7 @@ void ProcessAnOrder(Dictionary<int,Order> orderDict)
             }
             else if (choice == "r")
             {
-                Console.WriteLine("The order cannot be cancelled.");
+                currentOrder.OrderStatus = "Cancelled";
             }
             else if (choice == "s")
             {
@@ -770,10 +767,6 @@ void Deleteexistingorder(Dictionary<int, Order> orderDict, Stack<Order> refundst
     }
 
     Order selectedOrder = customer.OrderList[orderId];
-    if (selectedOrder.OrderStatus != "Pending")
-    {
-        Console.WriteLine("Order is not pending.");
-    }
 
     // Display Order Information
     Console.WriteLine($"\nCustomer: {customer.CustomerName}");
@@ -791,7 +784,7 @@ void Deleteexistingorder(Dictionary<int, Order> orderDict, Stack<Order> refundst
 
         Console.WriteLine($"Order {selectedOrder.OrderId} cancelled. Refund of {selectedOrder.OrderTotal} processed.");
     }
-    else
+    else if (confirm == "N") 
     {
         Console.WriteLine("Order deletion cancelled.");
     }
