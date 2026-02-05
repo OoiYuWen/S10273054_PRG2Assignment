@@ -409,8 +409,6 @@ void DisplayAllOrders(Dictionary<int,Order> orderDict)
     }
 }
 
-
-
 // Display Main menu method
 void DisplayMainMenu()
 {
