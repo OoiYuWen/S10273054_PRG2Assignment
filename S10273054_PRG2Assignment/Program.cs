@@ -70,6 +70,10 @@ while (option != 0)
     {
 
     }
+    else if (option == 7)
+    {
+        BulkProcessOrders(orderDict);
+    }
     else if (option == 0)
     {
         Console.WriteLine("Exiting the Gruberoo Food Delivery System. Goodbye!");
@@ -133,7 +137,7 @@ void LoadOrders(Dictionary<int, Order> orderList, Dictionary<string, Restaurant>
             Order order = new Order(orderId, CreatedDateTime, totalAmount, status, deliveryDateTime, deliveryAddress, "Unknown", true, r, c);
             counter++;
             // Add to global order dictionary
-            orderList.Add(orderId, order);
+            orderDict.Add(orderId, order);
 
             // Add to restaurant's order queue
             r.OrderQueue.Enqueue(order);
@@ -230,7 +234,7 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
         if (itemNo == 0)
             break;
 
-        if (option < 1 || option > foodList.Count)
+        if (itemNo < 1 || itemNo > foodList.Count)
         {
             Console.WriteLine("Invalid option, try again.");
             continue;
@@ -339,7 +343,7 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
         // Appending new order to orders - Copy.csv
         using (StreamWriter sw = new StreamWriter("orders - Copy.csv", true))
         {
-            sw.WriteLine($"{newOrder.OrderId}," + $"{CustEmail}," + $"{RestID}," + $"{DeliveryD:dd/MM/yyyy}," + $"{DeliveryT:HH:mm}," + $"{DeliveryAddr}," + $"{CreatedDateTime:dd/MM/yyyy HH:mm}," + $"{totalAmount + delivery:F2}," + $"{newOrder.OrderStatus}," + $"\"{orderedItemsString}\"");
+            sw.WriteLine($"{newOrder.OrderId}," + $"{CustEmail}," + $"{RestID}," + $"{DeliveryDT:dd/MM/yyyy}," + $"{DeliveryDT:HH:mm}," + $"{DeliveryAddr}," + $"{CreatedDateTime:dd/MM/yyyy HH:mm}," + $"{totalAmount + delivery:F2}," + $"{newOrder.OrderStatus}," + $"\"{orderedItemsString}\"");
         }
 
         Console.WriteLine($"Order {OrderId} created successfully! Status: {newOrder.OrderStatus}");
@@ -532,6 +536,61 @@ void ModifyExistingOrder()
             return;
         }
 }
+
+// Advanced feature a) : Bulk processing of unprocessed orders for a current day
+void BulkProcessOrders(Dictionary<int, Order> orderDict)
+{
+    Console.WriteLine();
+    Console.WriteLine("Bulk Process Orders");
+    Console.WriteLine("===================");
+
+    // Identify pending orders
+    List<Order> PendingOrders = new List<Order>();
+    foreach (Order order in orderDict.Values)
+    {
+        if (order.OrderStatus == "Pending")
+        {
+            PendingOrders.Add(order);
+        }
+    }
+    Console.WriteLine($"Total Pending orders: {PendingOrders.Count}");
+    Console.WriteLine();
+
+    int PendingCount = 0;
+    int RejectedCount = 0;
+
+    foreach (Order order in PendingOrders)
+    {
+        TimeSpan TimeRemaining = order.DeliveryDateTime - DateTime.Now;
+        if (TimeRemaining.TotalHours < 1)
+        {
+            order.OrderStatus = "Rejected";
+            refundstack.Push(order);
+            RejectedCount++;
+            Console.WriteLine($"Order {order.OrderId} rejected due to insufficient time for preparation.");
+        }
+        else
+        {
+            order.OrderStatus = "Preparing";
+            PendingCount++;
+            Console.WriteLine($"Order {order.OrderId} is now being prepared.");
+        }
+    }
+
+    // Calculating statistics
+    int processedCount = PendingCount + RejectedCount;
+    int totalOrders = orderDict.Count;
+    double ProcessedRate = (double)processedCount / totalOrders * 100;
+
+    // Displaying summary statistics
+    Console.WriteLine();
+    Console.WriteLine("-----Bulk Processing Summary-----");
+    Console.WriteLine($"Orders Processed: {processedCount} ");
+    Console.WriteLine($"Number of pending orders: {PendingCount}");
+    Console.WriteLine($"Number of rejected orders: {RejectedCount}");
+    Console.WriteLine($"Processed Rate: {ProcessedRate.ToString("0.00")}%");
+}
+
 
 // 1) Load files (restaurants and food items) 
 void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string,Menu> MenuDict, Dictionary<string, Restaurant> RestaurantDict)
@@ -801,5 +860,6 @@ void DisplayMainMenu()
     Console.WriteLine("4. Process an order");
     Console.WriteLine("5. Modify an existing order");
     Console.WriteLine("6. Delete an existing order");
+    Console.WriteLine("7. Bulk process orders");
     Console.WriteLine("0. Exit");
 }

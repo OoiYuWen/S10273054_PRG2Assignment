@@ -16,7 +16,7 @@ namespace S10273054_PRG2Assignment
         public string OfferCode { get; set; }
         public string OfferDesc { get; set; }
         public double Discount { get; set; }
-        public List<Order> OrderList { get; set; } = new List<Order>();
+        public List<Order> SpecialOrderList { get; set; } = new List<Order>();
 
         public SpecialOffer() { }
         public SpecialOffer(string offerCode,string offerDesc,double discount)
