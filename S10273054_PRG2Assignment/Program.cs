@@ -9,6 +9,7 @@
 
 using Microsoft.VisualBasic;
 using S10273054_PRG2Assignment;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 // Actual Program Starts Here
@@ -62,7 +63,7 @@ while (option != 0)
     }
     else if (option == 4)
     {
-
+        ProcessAnOrder(orderDict);
     }
     else if (option == 5)
     {
@@ -70,7 +71,7 @@ while (option != 0)
     }
     else if (option == 6)
     {
-
+        Deleteexistingorder(orderDict, refundstack);
     }
     else if (option == 7)
     {
