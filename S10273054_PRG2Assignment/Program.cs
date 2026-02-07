@@ -195,7 +195,7 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
         c = SearchCustomer(custDict, CustEmail);
 
 
-        if (c == null)
+        if (c == null || !custDict.ContainsKey(CustEmail))
         {
             Console.WriteLine("Error: Customer not found! Please try again.");
         }
@@ -206,7 +206,7 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
     // Checking if restaurant exists
     Restaurant r = null;
     string RestID = string.Empty;
-    while (r == null)
+    while (r == null || !RestaurantDict.ContainsKey(RestID))
     {
         Console.Write("Enter Restaurant ID: ");
         RestID = Console.ReadLine();
@@ -259,8 +259,9 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
 
 
 
-    string deliveryDateTime = deliveryDate + " " + deliveryTime;
-    DateTime DeliveryDT = Convert.ToDateTime(deliveryDateTime);
+    string deliveryDateTime = deliveryDate.ToString("dd/MM/yyyy") + " " + deliveryTime.ToString("hh\\:mm");
+    DateTime DeliveryDT = DateTime.ParseExact(deliveryDateTime, "dd/MM/yyyy HH:mm", null);
+
 
     // Checking if delivery address is empty
     string DeliveryAddr;
