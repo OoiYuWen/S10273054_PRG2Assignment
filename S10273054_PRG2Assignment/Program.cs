@@ -721,17 +721,25 @@ void ProcessAnOrder(Dictionary<int,Order> orderDict)
     string resID = Console.ReadLine();
 
     Restaurant r = SearchRestaurant(RestaurantDict, resID);
+
+    int numOfOrders = r.OrderQueue.Count;
+
     for (int i = 0; i < r.OrderQueue.Count; i++)
     {
-        Order currentOrder = r.OrderQueue.Peek();
+        Order currentOrder = r.OrderQueue.Dequeue();
         Console.WriteLine($"Order {currentOrder.OrderId}");
         string CustName = currentOrder.Customer.CustomerName;
+
         Console.WriteLine($"Customer: {CustName}");
+
         Console.WriteLine("Ordered Items: ");
+
         currentOrder.DisplayOrderedFoodItems();
 
         Console.Write("[C]onfirm / [R]eject / [S]kip / [D]eliver: ");
         string choice = Console.ReadLine().ToLower();
+
+        bool RemoveFromQueue = false;
 
         // remove the first order
         Order firstOrder = r.OrderQueue.Dequeue();
@@ -742,12 +750,15 @@ void ProcessAnOrder(Dictionary<int,Order> orderDict)
             if (choice == "c")
             {
                 currentOrder.OrderStatus = "Preparing";
+                Console.WriteLine($"Order {currentOrder.OrderId} confirmed. Status: Preparing");
             }
             else if (choice == "r")
             {
-                    currentOrder.OrderStatus = "Rejected";
-                    refundstack.Push(currentOrder);
-                    Console.WriteLine($"Order {currentOrder.OrderId} rejected. Added to refund stack.");
+                currentOrder.OrderStatus = "Rejected";
+                refundstack.Push(currentOrder);
+                Console.WriteLine($"Order {currentOrder.OrderId} rejected. Added to refund stack.");
+                RemoveFromQueue = true;
+
             }
             else if (choice == "s")
             {
@@ -812,15 +823,18 @@ void ProcessAnOrder(Dictionary<int,Order> orderDict)
             else if (choice == "s")
             {
                 Console.WriteLine($"Order {currentOrder.OrderId} skipped (Cancelled)");
-                continue;
             }
             else if (choice == "d")
             {
                 Console.WriteLine("The order has been cancelled thus unable to be delivered.");
             }
+
+            if (!RemoveFromQueue)
+            {
+                r.OrderQueue.Enqueue(currentOrder);
+            }
         }
         Console.WriteLine($"Order {currentOrder.OrderId} confirmed. Status: {currentOrder.OrderStatus}");
-        break;
     }
 }
 
