@@ -10,6 +10,8 @@
 using Microsoft.VisualBasic;
 using S10273054_PRG2Assignment;
 using System.Collections.Generic;
+using System.Globalization;
+using System.Net;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 // Actual Program Starts Here
@@ -124,7 +126,8 @@ void LoadOrders(Dictionary<int, Order> orderList, Dictionary<string, Restaurant>
             string deliveryTime = parts[4];
             string deliveryAddress = parts[5];
             string createdDateTime = (parts[6]);
-            DateTime CreatedDateTime = Convert.ToDateTime(createdDateTime);
+            DateTime CreatedDateTime = DateTime.ParseExact(createdDateTime,"dd/MM/yyyy HH:mm",null);
+
             double totalAmount = Convert.ToDouble(parts[7]);
             string status = parts[8];
             string items = parts[9];
@@ -185,23 +188,59 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
     // Find customer
     Customer c = SearchCustomer(custDict, CustEmail);
 
+    // Checking if customer exists
+    if (c == null)
+    {
+        Console.WriteLine("Error: Customer not found!");
+        return;
+    }
+
 
     Console.Write("Enter Restaurant ID: ");
     string RestID = Console.ReadLine();
     // Find restaurant
     Restaurant r = SearchRestaurant(RestaurantDict, RestID);
 
+    // Checking if restaurant exists
+    if (r == null)
+    {
+        Console.WriteLine("Error: Restaurant not found!");
+        return;
+    }
+
     Console.Write("Enter Delivery Date (dd/mm/yyyy):");
     string DeliveryD = Console.ReadLine();
 
+    // Checking delivery date format
+    if (!DateTime.TryParse(DeliveryD, out DateTime deliveryDate))
+    {
+        Console.WriteLine("Error: Invalid date format. Please use dd/mm/yyyy");
+        return;
+    }
+
     Console.Write("Enter Delivery Time (hh:mm):");
     string DeliveryT = Console.ReadLine();
+
+    // Checking delivery time format
+    if (!TimeSpan.TryParse(DeliveryT, out TimeSpan deliveryTime))
+    {
+        Console.WriteLine("Error: Invalid time format. Please use hh:mm");
+        return;
+    }
+
 
     string deliveryDateTime = DeliveryD + " " + DeliveryT;
     DateTime DeliveryDT = Convert.ToDateTime(deliveryDateTime);
 
     Console.Write("Enter Delivery Address:");
     string DeliveryAddr = Console.ReadLine();
+
+    // Checking if delivery address is empty
+    if (DeliveryAddr == null || DeliveryAddr == "")
+    {
+        Console.WriteLine("Error: Delivery address cannot be empty!");
+        return;
+    }
 
     // Showing available food items
     Console.WriteLine();
