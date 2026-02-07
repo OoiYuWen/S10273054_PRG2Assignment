@@ -858,6 +858,7 @@ void Deleteexistingorder(Dictionary<int, Order> orderDict, Stack<Order> refundst
     if (PendingCount == 0)
     {
         Console.WriteLine("No pending orders found.");
+        return;
     }
 
     // Prompt for OrderID
