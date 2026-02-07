@@ -126,7 +126,7 @@ void LoadOrders(Dictionary<int, Order> orderList, Dictionary<string, Restaurant>
             string deliveryTime = parts[4];
             string deliveryAddress = parts[5];
             string createdDateTime = (parts[6]);
-            DateTime CreatedDateTime = DateTime.ParseExact(createdDateTime,"dd/MM/yyyy HH:mm",null);
+            DateTime CreatedDateTime = Convert.ToDateTime(createdDateTime);
 
             double totalAmount = Convert.ToDouble(parts[7]);
             string status = parts[8];
