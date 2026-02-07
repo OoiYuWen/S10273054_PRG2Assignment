@@ -183,63 +183,99 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
     Console.WriteLine("Create New Order");
     Console.WriteLine("================");
 
-    Console.Write("Enter Customer Email: ");
-    string CustEmail = Console.ReadLine();
-    // Find customer
-    Customer c = SearchCustomer(custDict, CustEmail);
-
     // Checking if customer exists
-    if (c == null)
+    Customer c = null;
+    string CustEmail = string.Empty;
+    while (c == null)
     {
-        Console.WriteLine("Error: Customer not found!");
-        return;
+        Console.Write("Enter Customer Email: ");
+        CustEmail = Console.ReadLine();
+
+        // Find customer
+        c = SearchCustomer(custDict, CustEmail);
+
+
+        if (c == null)
+        {
+            Console.WriteLine("Error: Customer not found! Please try again.");
+        }
     }
+    Console.WriteLine($"Customer found: {c.CustomerName}");
 
-
-    Console.Write("Enter Restaurant ID: ");
-    string RestID = Console.ReadLine();
-    // Find restaurant
-    Restaurant r = SearchRestaurant(RestaurantDict, RestID);
 
     // Checking if restaurant exists
-    if (r == null)
+    Restaurant r = null;
+    string RestID = string.Empty;
+    while (r == null)
     {
-        Console.WriteLine("Error: Restaurant not found!");
-        return;
+        Console.Write("Enter Restaurant ID: ");
+        RestID = Console.ReadLine();
+        r = SearchRestaurant(RestaurantDict, RestID);
+
+
+        if (r == null)
+        {
+            Console.WriteLine("Error: Restaurant not found! Please try again.");
+        }
+    }
+    Console.WriteLine($"Restaurant found: {r.RestaurantName}");
+
+
+    // Delivery Date input
+    DateTime deliveryDate;
+    while (true)
+    {
+        Console.Write("Enter Delivery Date (dd/mm/yyyy): ");
+        string DeliveryD = Console.ReadLine();
+
+        if (DateTime.TryParse(DeliveryD, out deliveryDate))   // Faster way to check date format
+        {
+            break; // valid date
+        }
+        else
+        {
+            Console.WriteLine("Error: Invalid date format. Please use dd/mm/yyyy");
+
+        }
     }
 
-    Console.Write("Enter Delivery Date (dd/mm/yyyy):");
-    string DeliveryD = Console.ReadLine();
 
-    // Checking delivery date format
-    if (!DateTime.TryParse(DeliveryD, out DateTime deliveryDate))
+    // Delivery Time input
+    TimeSpan deliveryTime;
+    while (true)
     {
-        Console.WriteLine("Error: Invalid date format. Please use dd/mm/yyyy");
-        return;
+        Console.Write("Enter Delivery Time (hh:mm): ");
+        string DeliveryT = Console.ReadLine();
+
+        if (TimeSpan.TryParse(DeliveryT, out deliveryTime))
+        {
+            break; // valid time
+        }
+        else
+        {
+            Console.WriteLine("Error: Invalid time format. Please use hh:mm");
+        }
     }
 
-    Console.Write("Enter Delivery Time (hh:mm):");
-    string DeliveryT = Console.ReadLine();
-
-    // Checking delivery time format
-    if (!TimeSpan.TryParse(DeliveryT, out TimeSpan deliveryTime))
-    {
-        Console.WriteLine("Error: Invalid time format. Please use hh:mm");
-        return;
-    }
 
 
-    string deliveryDateTime = DeliveryD + " " + DeliveryT;
+    string deliveryDateTime = deliveryDate + " " + deliveryTime;
     DateTime DeliveryDT = Convert.ToDateTime(deliveryDateTime);
 
-    Console.Write("Enter Delivery Address:");
-    string DeliveryAddr = Console.ReadLine();
-
     // Checking if delivery address is empty
-    if (DeliveryAddr == null || DeliveryAddr == "")
+    string DeliveryAddr;
+    while (true)
     {
-        Console.WriteLine("Error: Delivery address cannot be empty!");
-        return;
+        Console.Write("Enter Delivery Address: ");
+        DeliveryAddr = Console.ReadLine();
+
+        if (DeliveryAddr == null || DeliveryAddr == "")
+        {
+            Console.WriteLine("Error: Delivery address cannot be empty!");
+            continue; // go back to the top of the loop, re‑prompt
+        }
+
+        break; // valid input, exit loop
     }
 
     // Showing available food items
@@ -282,8 +318,29 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
             continue;
         }
 
-        Console.Write("Enter quantity: ");
-        int qty = Convert.ToInt32(Console.ReadLine());
+        // qty input and validation
+        int qty;
+        while (true)
+        {
+            Console.Write("Enter quantity: ");
+            string input = Console.ReadLine();
+
+            try
+            {
+                qty = Convert.ToInt32(input);
+                if (qty < 1)
+                {
+                    Console.WriteLine("Error: Quantity must be at least 1.");
+                    continue;   // ask again
+                }
+                break;  // valid input, exit loop
+            }
+            catch
+            {
+                Console.WriteLine("Error: Please enter a valid number.");
+                continue;
+            }
+        }
 
         // Find chosen item
         FoodItem selectedFoodItem = foodList[itemNo - 1];
@@ -299,13 +356,26 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
     }
 
     Console.Write("Add special request? [Y/N]: ");
-    string specialReq = Console.ReadLine();
+    string specialReq = Console.ReadLine().ToUpper();
     if (specialReq == "Y")
     {
-        Console.Write("Enter special request: ");
-        string request = Console.ReadLine();
+        string request;
+        while (true)
+        {
+            Console.Write("Enter special request: ");
+            request = Console.ReadLine();
+
+            // Checking if special request is empty
+            if (request == null || request == "")
+            {
+                Console.WriteLine("Error: Special request cannot be empty!");
+                continue;   // re-prompt
+            }
+            break;   // valid input, exit loop
+        }
+        
         // Loop through the customer's ordered food items to add the special request to each item
-        foreach(OrderedFoodItem ofi in newOrder.OrderedList)
+        foreach (OrderedFoodItem ofi in newOrder.OrderedList)
         {
             ofi.Customise = request;
         }
@@ -326,15 +396,28 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
     Console.WriteLine($"Order Total: ${totalAmount.ToString("0.00")} + ${delivery.ToString("0.00")} (delivery) = ${(totalAmount + delivery).ToString("0.00")}");
 
     Console.Write("Proceed to payment? [Y/N]: ");
-    string proceed = Console.ReadLine();
+    string proceed = Console.ReadLine().ToUpper();
     Console.WriteLine();
 
     if (proceed == "Y")
     {
-        Console.WriteLine("Payment method: ");
-        Console.Write("[CC] Credit Card / [PP] PayPal / [CD] Cash on Delivery: ");
+        string paymentMethod;
+        while (true)
+        {
+            Console.WriteLine("Payment method: ");
+            Console.Write("[CC] Credit Card / [PP] PayPal / [CD] Cash on Delivery: ");
+            paymentMethod = Console.ReadLine().ToUpper();
 
-        string paymentMethod = Console.ReadLine().ToUpper();
+            if (paymentMethod == "CC" || paymentMethod == "PP" || paymentMethod == "CD")
+            {
+                break; // valid input, exit loop
+            }
+            else
+            {
+                Console.WriteLine("Error: Invalid payment method. Please enter CC, PP, or CD.");
+                continue; // re-prompt
+            }
+        }
         Console.WriteLine();
 
         // Creating the New Order's ID by taking most recent orderID + 1
@@ -450,6 +533,7 @@ void ModifyExistingOrder()
         {
             foundOrder = true;
             Console.WriteLine("Order found.");
+            Console.WriteLine();
 
             // Proceed to modify order
             Console.WriteLine("Order Items:");
@@ -467,8 +551,34 @@ void ModifyExistingOrder()
             Console.WriteLine($"{deliveryDate:dd/MM/yyyy}, {deliveryTime:hh\\:mm}");
             Console.WriteLine();
 
-            Console.Write("Modify: [1] Items [2] Address [3] Delivery Time: ");
-            int modifyOption = Convert.ToInt32(Console.ReadLine());
+            // Error handling for modify options
+            int modifyOption;
+            while (true)
+            {
+                Console.Write("Modify: [1] Items [2] Address [3] Delivery Time: ");
+                string input = Console.ReadLine();
+
+                try
+                {
+                    modifyOption = Convert.ToInt32(input);
+
+                    if (modifyOption >= 1 && modifyOption <= 3)
+                    {
+                        break; // valid option, exit loop
+                    }
+                    else
+                    {
+                        Console.WriteLine("Error: Please enter 1, 2, or 3.");
+                        continue; // re‑prompt
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine("Error: Please enter a number (1, 2, or 3).");
+                    continue; // re‑prompt
+                }
+            }
+            
             if (modifyOption == 1)
             {
                 // Show current ordered items
@@ -477,15 +587,38 @@ void ModifyExistingOrder()
                     OrderedFoodItem ofi = o.OrderedList[i];
                     Console.WriteLine($"{i + 1}. {ofi.ItemName} - {ofi.QtyOrdered}");
                 }
-                Console.Write("Enter item number to modify: ");
-                int itemNo = Convert.ToInt32(Console.ReadLine());
 
-                if (itemNo < 1 || itemNo > o.OrderedList.Count)
+                // ItemNo input and validation
+                int itemNo = 0;
+                bool valid = false;
+
+                while (!valid)
                 {
-                    Console.WriteLine("Invalid item number.");
-                    return;
+                    Console.Write("Enter item number to modify: ");
+                    try
+                    {
+                        itemNo = Convert.ToInt32(Console.ReadLine());
+
+                        if (itemNo >= 1 && itemNo <= o.OrderedList.Count)
+                        {
+                            valid = true; // success, exit loop
+                        }
+                        else
+                        {
+                            Console.WriteLine("Invalid item number. Please try again.");
+                        }
+                    }
+                    catch (FormatException)
+                    {
+                        Console.WriteLine("That wasn't a number. Please try again.");
+                    }
+                    catch (OverflowException)
+                    {
+                        Console.WriteLine("Number too large. Please try again.");
+                    }
                 }
-                else
+
+                if (itemNo >= 1 && itemNo <= o.OrderedList.Count)   // Not needed but just in case
                 {
                     double oldTotal = o.OrderTotal;
                     OrderedFoodItem selectedItem = o.OrderedList[itemNo - 1];
@@ -494,8 +627,30 @@ void ModifyExistingOrder()
                     int OldQty = selectedItem.QtyOrdered;
                     double OldSubtotal = selectedItem.SubTotal;
 
-                    Console.Write($"Enter new quantity for {selectedItem.ItemName}: ");
-                    int newQty = Convert.ToInt32(Console.ReadLine());
+                    // New quantity input and validation
+                    int newQty;
+                    while (true)
+                    {
+                        Console.Write($"Enter new quantity for {selectedItem.ItemName}: ");
+                        string input = Console.ReadLine();
+
+                        try
+                        {
+                            newQty = Convert.ToInt32(input);
+                            // Allows 0 but rejects negative values
+                            if (newQty < 0)
+                            {
+                                Console.WriteLine("Error: Quantity cannot be negative.");
+                                continue;   // ask again
+                            }
+                            break;  // valid input, exit loop
+                        }
+                        catch
+                        {
+                            Console.WriteLine("Error: Please enter a valid number.");
+                            continue;
+                        }
+                    }
 
                     // Applying new values
                     selectedItem.QtyOrdered = newQty;
@@ -508,14 +663,27 @@ void ModifyExistingOrder()
                     {
                         Console.WriteLine($"Additional payment of ${(newTotal - oldTotal).ToString("0.00")} required.");
                         Console.Write("Proceed to payment? [Y/N]: ");
-                        string proceedPayment = Console.ReadLine();
+                        string proceedPayment = Console.ReadLine().ToUpper();
 
                         if (proceedPayment == "Y")
                         {
-                            Console.WriteLine("Payment method: ");
-                            Console.Write("[CC] Credit Card / [PP] PayPal / [CD] Cash on Delivery: ");
+                            string paymentMethod;
+                            while (true)
+                            {
+                                Console.WriteLine("Payment method: ");
+                                Console.Write("[CC] Credit Card / [PP] PayPal / [CD] Cash on Delivery: ");
+                                paymentMethod = Console.ReadLine().ToUpper();
 
-                            string paymentMethod = Console.ReadLine().ToUpper();
+                                if (paymentMethod == "CC" || paymentMethod == "PP" || paymentMethod == "CD")
+                                {
+                                    break; // valid input, exit loop
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Error: Invalid payment method. Please enter CC, PP, or CD.");
+                                    continue; // re-prompt
+                                }
+                            }
                             Console.WriteLine();
                             o.OrderTotal = newTotal;
                             Console.WriteLine("Payment successful.");
@@ -556,12 +724,24 @@ void ModifyExistingOrder()
             }
             else if (modifyOption == 2)
             {
-                Console.Write("Enter new delivery address: ");
-                string newAddress = Console.ReadLine();
+                string newAddress;
+                while (true)
+                {
+                    Console.Write("Enter new delivery address: ");
+                    newAddress = Console.ReadLine();
+
+                    if (newAddress == null || newAddress == "")
+                    {
+                        Console.WriteLine("Error: Delivery address cannot be empty!");
+                        continue; // go back to the top of the loop, re‑prompt
+                    }
+
+                    break; // valid input, exit loop
+                }
                 o.DeliveryAddress = newAddress;
                 Console.WriteLine($"Order {o.OrderId} updated. New Delivery address: {o.DeliveryAddress}");
             }
-            else if (modifyOption == 3)
+            else
             {
                 Console.Write("Enter new delivery time (hh:mm): ");
                 string newTime = Console.ReadLine();
@@ -571,18 +751,13 @@ void ModifyExistingOrder()
 
                 Console.WriteLine($"Order {o.OrderId} updated. New Delivery time: {newTime}");
             }
-            else
-            {
-                Console.WriteLine("Invalid option.");
-            }
         }
-    }
-
-        if (!foundOrder)
+        else
         {
             Console.WriteLine("Order not found.");
             return;
         }
+    }
 }
 
 // Chloe Chan Xin: Advanced feature a) : Bulk processing of unprocessed orders for a current day
