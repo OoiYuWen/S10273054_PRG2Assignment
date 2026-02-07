@@ -26,6 +26,8 @@ List<OrderedFoodItem> orderedItems = new List<OrderedFoodItem>();  // Might not 
 
 Stack<Order> refundstack = new Stack<Order>(); // basic feature 6 - refund stack 
 
+List<SpecialOffer> specialOfferList = new List<SpecialOffer>();  // Bonus feature
+
 // Load Data from CSV files
 LoadRestaurant(RestaurantDict);
 LoadFoodItem(fooditemlist, menuDict, RestaurantDict);
@@ -496,6 +498,12 @@ void ModifyExistingOrder()
                     {
                         Console.WriteLine($"Refund of ${(oldTotal - newTotal).ToString("0.00")} will be processed.");
                         o.OrderTotal = newTotal;
+
+                        // Create a refund order for the refund stack
+                        Order refundOrder = new Order(o.OrderId, o.OrderDateTime, oldTotal - newTotal, "Cancelled", o.DeliveryDateTime, o.DeliveryAddress, o.OrderPaymentMethod, true, o.Restaurant, o.Customer);
+
+                        // Push to refund stack
+                        refundstack.Push(refundOrder);
                     }
                     else
                     {
@@ -537,7 +545,7 @@ void ModifyExistingOrder()
         }
 }
 
-// Advanced feature a) : Bulk processing of unprocessed orders for a current day
+// Chloe Chan Xin: Advanced feature a) : Bulk processing of unprocessed orders for a current day
 void BulkProcessOrders(Dictionary<int, Order> orderDict)
 {
     Console.WriteLine();
@@ -591,9 +599,46 @@ void BulkProcessOrders(Dictionary<int, Order> orderDict)
     Console.WriteLine($"Processed Rate: {ProcessedRate.ToString("0.00")}%");
 }
 
+// Chloe Chan Xin: Bonuse feature: Create an order with a special offer (order total to be re-calculated due to discount)
+void loadSpecialOffer()
+{
+    using (StreamReader sr = new StreamReader("specialoffers.csv"))
+    {
+        string? s = sr.ReadLine(); // Skip header line
+        while ((s = sr.ReadLine()) != null)
+        {
+            string[] parts = s.Split(',');
+            string restaurantName = parts[0];
+            string offerId = parts[1];
+            string offerDesc = parts[2];
+            double discountAmt;
+            string data = parts[3];
+            if (data == "-")
+            {
+                discountAmt = 0.0;
+            }
+            else
+            {
+                discountAmt = Convert.ToDouble(parts[3]);
+            }
 
-// 1) Load files (restaurants and food items) 
-void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string,Menu> MenuDict, Dictionary<string, Restaurant> RestaurantDict)
+            SpecialOffer so = new SpecialOffer(offerId, offerDesc, discountAmt);
+            specialOfferList.Add(so);
+            // Find restaurant
+            foreach (Restaurant r in RestaurantDict.Values)
+            {
+                if (r.RestaurantName == restaurantName)
+                {
+                    r.SpecialOffers.Add(so);
+                }
+
+            }
+        }
+    }
+}
+
+        // 1) Load files (restaurants and food items) 
+        void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string,Menu> MenuDict, Dictionary<string, Restaurant> RestaurantDict)
 {
     int counter = 0;
     using (StreamReader sr = new StreamReader("fooditems - Copy.csv"))
