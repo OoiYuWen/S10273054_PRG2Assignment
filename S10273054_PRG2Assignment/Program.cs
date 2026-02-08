@@ -937,11 +937,15 @@ void ProcessAnOrder(Dictionary<int,Order> orderDict)
 
     Restaurant r = SearchRestaurant(RestaurantDict, resID);
 
-    int numOfOrders = r.OrderQueue.Count;
+    if (r.OrderQueue.Count == 0) 
+    { 
+        Console.WriteLine("No orders in the queue."); 
+        return; 
+    }
 
-    for (int i = 0; i < r.OrderQueue.Count; i++)
-    {
-        Order currentOrder = r.OrderQueue.Dequeue();
+    //for (int i = 0; i < r.OrderQueue.Count; i++)
+    //{
+        Order currentOrder = r.OrderQueue.Peek();
         Console.WriteLine($"Order {currentOrder.OrderId}");
         string CustName = currentOrder.Customer.CustomerName;
 
@@ -956,10 +960,6 @@ void ProcessAnOrder(Dictionary<int,Order> orderDict)
 
         bool RemoveFromQueue = false;
 
-        // remove the first order
-        Order firstOrder = r.OrderQueue.Dequeue();
-        // Place it at the back 
-        r.OrderQueue.Enqueue(firstOrder);
         if (currentOrder.OrderStatus == "Pending")
         {
             if (choice == "c")
@@ -974,7 +974,7 @@ void ProcessAnOrder(Dictionary<int,Order> orderDict)
                 Console.WriteLine($"Order {currentOrder.OrderId} rejected. Added to refund stack.");
                 RemoveFromQueue = true;
 
-            }
+             }
             else if (choice == "s")
             {
                 Console.WriteLine("The order has been skipped");
@@ -994,6 +994,7 @@ void ProcessAnOrder(Dictionary<int,Order> orderDict)
             else if (choice == "r")
             {
                 currentOrder.OrderStatus = "Cancelled";
+                RemoveFromQueue = true;
             }
             else if (choice == "s")
             {
@@ -1002,6 +1003,8 @@ void ProcessAnOrder(Dictionary<int,Order> orderDict)
             else if (choice == "d")
             {
                 currentOrder.OrderStatus = "Delivered";
+                Console.WriteLine($"Order {currentOrder.OrderId} delivered.");
+                RemoveFromQueue = true;
             }
         }
 
@@ -1010,6 +1013,7 @@ void ProcessAnOrder(Dictionary<int,Order> orderDict)
             if (choice == "c")
             {
                 Console.WriteLine("The order is being delivered, it has already been confirmed.");
+                RemoveFromQueue = true;
             }
             else if (choice == "r")
             {
@@ -1038,19 +1042,20 @@ void ProcessAnOrder(Dictionary<int,Order> orderDict)
             else if (choice == "s")
             {
                 Console.WriteLine($"Order {currentOrder.OrderId} skipped (Cancelled)");
+                RemoveFromQueue = true;
             }
             else if (choice == "d")
             {
                 Console.WriteLine("The order has been cancelled thus unable to be delivered.");
             }
 
-            if (!RemoveFromQueue)
+            if (RemoveFromQueue)
             {
-                r.OrderQueue.Enqueue(currentOrder);
+                r.OrderQueue.Dequeue();
             }
         }
         Console.WriteLine($"Order {currentOrder.OrderId} confirmed. Status: {currentOrder.OrderStatus}");
-    }
+    //}
 }
 
 // 8) Delete an exsiting order
@@ -1124,6 +1129,49 @@ void Deleteexistingorder(Dictionary<int, Order> orderDict, Stack<Order> refundst
         Console.WriteLine("Order deletion cancelled.");
     }
 }
+
+// Ooi Yu Wen Advanced Feature: Display total order amount 
+void DisplayTotalOrderAmt(Dictionary<string, Restaurant> RestaurantDict, Stack<Order> refundstack)
+{
+    double totalorder = 0;
+    double totalrefund = 0;
+    foreach (var kvp in RestaurantDict)
+    {
+        Restaurant r = kvp.Value;
+        double restaurantTotalOrder = 0;
+        double restaurantTotalRefund = 0;
+
+        foreach(Order o in r.OrderQueue)
+        {
+            if (o.OrderStatus == "Delivered")
+            {
+                double deliveryfee = 5.0;
+                restaurantTotalOrder += (o.OrderTotal - deliveryfee);
+            }
+        }
+        // Refunds: either check refundstack or orders with status "Rejected"
+        foreach (Order o in refundstack)
+        {
+            if (o.Restaurant.RestaurantId == r.RestaurantId)
+            {
+                restaurantTotalRefund += o.OrderTotal;
+            }
+        }
+
+        Console.WriteLine($"Restaurant {r.RestaurantId}: ");
+        Console.WriteLine($"Total Orders (Delivered): {restaurantTotalOrder:F2}");
+        Console.WriteLine($"Total Refunds: {restaurantTotalRefund:F2}");
+
+        totalorder += restaurantTotalOrder;
+        totalrefund += restaurantTotalRefund;
+    }
+
+    double finalamt = totalorder - totalrefund;
+    Console.WriteLine("=====================================");
+    Console.WriteLine($"Overal Total Orders: {totalorder:F2}");
+    Console.WriteLine($"Overal Total Refunds: {totalrefund:F2}");
+    Console.WriteLine($"Final Amount Gruberoo Earns: {finalamt:F2}");
+} 
 
 // Display Main menu method
 void DisplayMainMenu()
