@@ -1207,7 +1207,7 @@ void ProcessAnOrder(Dictionary<int,Order> orderDict)
     Console.WriteLine();
 }
 
-// 8) Delete an exsiting order
+// 8) Delete an existing order
 void Deleteexistingorder(Dictionary<int, Order> orderDict, Stack<Order> refundstack)
 {
     Console.WriteLine("Delete Order");
@@ -1319,7 +1319,7 @@ void DisplayTotalOrderAmt(Dictionary<string, Restaurant> RestaurantDict, Stack<O
                     restaurantTotalOrder += (o.OrderTotal - deliveryfee);
                 }
             }
-            // Refunds: either check refundstack or orders with status "Rejected"
+            // Refunds are stored in refundstack
             foreach (Order o in refundstack)
             {
                 if (o.Restaurant.RestaurantId == r.RestaurantId)
