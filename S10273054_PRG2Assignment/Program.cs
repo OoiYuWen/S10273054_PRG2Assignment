@@ -927,14 +927,39 @@ void LoadRestaurant(Dictionary<string,Restaurant> RestaurantDict)
         string? s = sr.ReadLine();
         while ((s = sr.ReadLine()) != null)
         {
-            string[] parts = s.Split(",");
-            string id = parts[0];
-            string name = parts[1];
-            string email = parts[2];
+            try
+            {
+                string[] parts = s.Split(",");
+                // basic check 
+                if (parts.Length < 3)
+                {
+                    Console.WriteLine("Invalid line format! Skipping...");
+                    continue;
+                }
+                string id = parts[0];
+                string name = parts[1];
+                string email = parts[2];
 
-            Restaurant restaurant = new Restaurant(id, name, email);
-            RestaurantDict.Add(id,restaurant);
-            counter++;
+                // check for duplicate restaurant ID's
+                if (RestaurantDict.ContainsKey(id))
+                {
+                    Console.WriteLine($"Restaurant ID {id} not found. Skipping...");
+                }
+
+                Restaurant restaurant = new Restaurant(id, name, email);
+                RestaurantDict.Add(id, restaurant);
+                counter++;
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine($"Invalid price format in line: {s}");
+            }
+            catch (Exception ex)
+            {
+                // Catch any unexpected error
+                Console.WriteLine($"Error Processing Message: {s}");
+                Console.WriteLine($"Details: " + ex.Message);
+            }
         }
     }
     Console.WriteLine($"{counter} restaurants loaded!");
@@ -949,7 +974,29 @@ void DisplayAllOrders(Dictionary<int,Order> orderDict)
     Console.WriteLine($"{"--------",-10} {"----------",-15} {"-------------",-15} {"------------------",-20} {"------",-10} {"---------",-10}");
     foreach (Order order in orderDict.Values)
     {
-        Console.WriteLine($"{order.OrderId,-10} {order.Customer.CustomerName,-15} {order.Restaurant.RestaurantName,-15} {order.DeliveryDateTime,-20} {order.OrderTotal,-10:F2} {order.OrderStatus,-10}");
+        try
+        {
+            // check in case Customer or Restaurant is null
+            string customerName = "Unknown";
+            if (order.Customer != null)
+            {
+                customerName = order.Customer.CustomerName;
+            }
+            string restaurantName = "Unknown";
+            if (order.Restaurant != null)
+            {
+                restaurantName = order.Restaurant.RestaurantName;
+            }
+            Console.WriteLine($"{order.OrderId,-10} {order.Customer.CustomerName,-15} {order.Restaurant.RestaurantName,-15} {order.DeliveryDateTime,-20} {order.OrderTotal,-10:F2} {order.OrderStatus,-10}");
+        }
+        catch (FormatException)
+        {
+            Console.WriteLine($"Invalid format while displaying order {order.OrderId}");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error displaying order {order.OrderId}: {ex.Message}");
+        }
     }
 }
 
@@ -959,22 +1006,28 @@ void ProcessAnOrder(Dictionary<int,Order> orderDict)
 {
     Console.WriteLine("Process Order");
     Console.WriteLine("=============");
-    Console.Write("Enter Restaurant ID: ");
-    string resID = Console.ReadLine();
+    try
+    {
+        Console.Write("Enter Restaurant ID: ");
+        string resID = Console.ReadLine();
 
-    Restaurant r = SearchRestaurant(RestaurantDict, resID);
+        Restaurant r = SearchRestaurant(RestaurantDict, resID);
 
-    if (r.OrderQueue.Count == 0) 
-    { 
-        Console.WriteLine("No orders in the queue."); 
-        return; 
-    }
+        if (r.OrderQueue.Count == 0)
+        {
+            Console.WriteLine("No orders in the queue.");
+            return;
+        }
 
-    //for (int i = 0; i < r.OrderQueue.Count; i++)
-    //{
+        //for (int i = 0; i < r.OrderQueue.Count; i++)
+        //{
         Order currentOrder = r.OrderQueue.Peek();
+        string CustName = "Unknown";
+        if (currentOrder.Customer != null)
+        {
+            CustName = currentOrder.Customer.CustomerName;
+        }
         Console.WriteLine($"Order {currentOrder.OrderId}");
-        string CustName = currentOrder.Customer.CustomerName;
 
         Console.WriteLine($"Customer: {CustName}");
 
@@ -1001,7 +1054,7 @@ void ProcessAnOrder(Dictionary<int,Order> orderDict)
                 Console.WriteLine($"Order {currentOrder.OrderId} rejected. Added to refund stack.");
                 RemoveFromQueue = true;
 
-             }
+            }
             else if (choice == "s")
             {
                 Console.WriteLine("The order has been skipped");
@@ -1082,7 +1135,17 @@ void ProcessAnOrder(Dictionary<int,Order> orderDict)
             }
         }
         Console.WriteLine($"Order {currentOrder.OrderId} confirmed. Status: {currentOrder.OrderStatus}");
-    //}
+
+    }
+    catch(FormatException)
+    {
+        Console.WriteLine("Invalid input! Please enter the correct values.");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Error: " + ex.Message);
+    }
+    Console.WriteLine();
 }
 
 // 8) Delete an exsiting order
@@ -1090,72 +1153,84 @@ void Deleteexistingorder(Dictionary<int, Order> orderDict, Stack<Order> refundst
 {
     Console.WriteLine("Delete Order");
     Console.WriteLine("============");
-
-    // Prompt to enter customer email 
-    Console.Write("Enter Customer Email: ");
-    string CustEmail = Console.ReadLine();
-
-    // Find the customer
-    Customer customer = SearchCustomer(custDict, CustEmail);
-    
-    if (customer == null)
+    try
     {
-        Console.WriteLine("Customer not found.");
-        return;
-    }
+        // Prompt to enter customer email 
+        Console.Write("Enter Customer Email: ");
+        string CustEmail = Console.ReadLine();
 
-    // Display pending order
-    Console.WriteLine("\nPending Orders: ");
-    int PendingCount = 0;
+        // Find the customer
+        Customer customer = SearchCustomer(custDict, CustEmail);
 
-    foreach (Order order in customer.OrderList.Values)
-    {
-        if (order.OrderStatus == "Pending")
+        if (customer == null)
         {
-            Console.WriteLine(order.OrderId);
-            PendingCount++;
+            Console.WriteLine("Customer not found.");
+            return;
+        }
+
+        // Display pending order
+        Console.WriteLine("\nPending Orders: ");
+        int PendingCount = 0;
+
+        foreach (Order order in customer.OrderList.Values)
+        {
+            if (order.OrderStatus == "Pending")
+            {
+                Console.WriteLine(order.OrderId);
+                PendingCount++;
+            }
+        }
+
+        if (PendingCount == 0)
+        {
+            Console.WriteLine("No pending orders found.");
+            return;
+        }
+
+        // Prompt for OrderID
+        Console.Write("Enter Order ID: ");
+        int orderId = Convert.ToInt32(Console.ReadLine());
+
+        if (!customer.OrderList.ContainsKey(orderId))
+        {
+            Console.WriteLine("Order ID not found.");
+            return;
+        }
+
+        Order selectedOrder = customer.OrderList[orderId];
+
+        // Display Order Information
+        Console.WriteLine($"\nCustomer: {customer.CustomerName}");
+        selectedOrder.DisplayOrderedFoodItems();
+
+        // Confirm deletion
+        Console.Write("\nConfirm deletion? [Y/N]: ");
+        string confirm = Console.ReadLine().ToUpper();
+
+        if (confirm == "Y")
+        {
+            // Cancel Order and push to refund stack
+            selectedOrder.OrderStatus = "Cancelled";
+            refundstack.Push(selectedOrder);
+
+            Console.WriteLine($"Order {selectedOrder.OrderId} cancelled. Refund of {selectedOrder.OrderTotal} processed.");
+        }
+        else if (confirm == "N")
+        {
+            Console.WriteLine("Order deletion cancelled.");
         }
     }
-
-    if (PendingCount == 0)
+    catch(FormatException)
     {
-        Console.WriteLine("No pending orders found.");
-        return;
+        Console.WriteLine("Invalid input! Please enter numbers where required");
     }
-
-    // Prompt for OrderID
-    Console.Write("Enter Order ID: ");
-    int orderId = Convert.ToInt32(Console.ReadLine());
-
-    if (!customer.OrderList.ContainsKey(orderId))
+    catch (Exception ex)
     {
-        Console.WriteLine("Order ID not found.");
-        return;
+        Console.WriteLine("Error: " + ex.Message);
     }
-
-    Order selectedOrder = customer.OrderList[orderId];
-
-    // Display Order Information
-    Console.WriteLine($"\nCustomer: {customer.CustomerName}");
-    selectedOrder.DisplayOrderedFoodItems();
-
-    // Confirm deletion
-    Console.Write("\nConfirm deletion? [Y/N]: ");
-    string confirm = Console.ReadLine().ToUpper();
-
-    if (confirm == "Y")
-    {
-        // Cancel Order and push to refund stack
-        selectedOrder.OrderStatus = "Cancelled";
-        refundstack.Push(selectedOrder);
-
-        Console.WriteLine($"Order {selectedOrder.OrderId} cancelled. Refund of {selectedOrder.OrderTotal} processed.");
-    }
-    else if (confirm == "N") 
-    {
-        Console.WriteLine("Order deletion cancelled.");
-    }
+    Console.WriteLine();
 }
+
 
 // Ooi Yu Wen Advanced Feature: Display total order amount 
 void DisplayTotalOrderAmt(Dictionary<string, Restaurant> RestaurantDict, Stack<Order> refundstack)
