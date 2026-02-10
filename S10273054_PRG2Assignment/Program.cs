@@ -123,6 +123,9 @@ void LoadOrders(Dictionary<int, Order> orderList, Dictionary<string, Restaurant>
         while ((s = sr.ReadLine()) != null)
         {
             string[] parts = s.Split(',');
+            if (parts.Length < 10) continue;
+
+            // First 9 fields are fixed
             int orderId = Convert.ToInt32(parts[0]);
             string email = parts[1];
             string restuarantId = parts[2];
@@ -134,7 +137,9 @@ void LoadOrders(Dictionary<int, Order> orderList, Dictionary<string, Restaurant>
 
             double totalAmount = Convert.ToDouble(parts[7]);
             string status = parts[8];
-            string items = parts[9];
+
+            // Rest of the line belongs to Items(join back together)
+            string itemsData = string.Join(",", parts.Skip(9)).Trim('"');  // skip here means to skip the first 9 elements and join the rest back with comma which gives ["\"Chicken Katsu Bento", " 1|Vegetable Tempura Bento", " 1\""]
 
             string deliveryDT = parts[3] + " " + parts[4];
             DateTime deliveryDateTime = Convert.ToDateTime(deliveryDT);
@@ -146,6 +151,39 @@ void LoadOrders(Dictionary<int, Order> orderList, Dictionary<string, Restaurant>
 
             Order order = new Order(orderId, CreatedDateTime, totalAmount, status, deliveryDateTime, deliveryAddress, "Unknown", true, r, c);
             counter++;
+
+            // Split items and add them to OrderedFoodItem
+            string[] items = itemsData.Split('|');
+
+            foreach(string item in items)
+            {
+                // split by (,) and trim spaces
+                string[] part = item.Split(',');
+                string itemName = part[0].Trim();
+                int qtyOrdered = Convert.ToInt32(part[1].Trim());
+
+                FoodItem foodItem = null;
+
+                foreach (Menu m in r.Menus.Values)
+                {
+                    foreach (FoodItem fi in m.FoodItems)
+                    {
+                        if (fi.ItemName == itemName)
+                        {
+                            foodItem = fi;
+                            break;
+                        }
+                    }
+                }
+                if (foodItem != null)
+                {
+                    double subtotal = qtyOrdered * foodItem.ItemPrice;
+                    OrderedFoodItem ofi = new OrderedFoodItem(foodItem.ItemName, foodItem.ItemDesc, foodItem.ItemPrice, foodItem.Customise, qtyOrdered, subtotal);
+                    order.AddOrderedFoodItem(ofi);
+                }
+            }
+
+            
             // Add to global order dictionary
             orderDict.Add(orderId, order);
 
@@ -757,11 +795,12 @@ void ModifyExistingOrder()
                 Console.WriteLine($"Order {o.OrderId} updated. New Delivery time: {newTime}");
             }
         }
-        else
-        {
-            Console.WriteLine("Order not found.");
-            return;
-        }
+       
+    }
+    if (!foundOrder)
+    {
+        Console.WriteLine("Order not found.");
+        return;
     }
 }
 
