@@ -201,7 +201,15 @@ void LoadOrders(Dictionary<int, Order> orderList, Dictionary<string, Restaurant>
 // Search function for customer
 Customer SearchCustomer(Dictionary<string, Customer> custDict, string emailAddress)
 {
-    return custDict[emailAddress];
+    try
+    {
+        return custDict[emailAddress];
+    }
+    catch (KeyNotFoundException)
+    {
+        return null;
+    }
+
 }
 
 
@@ -248,7 +256,7 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
     // Checking if restaurant exists
     Restaurant r = null;
     string RestID = string.Empty;
-    while (r == null || !RestaurantDict.ContainsKey(RestID))
+    while (r == null)
     {
         Console.Write("Enter Restaurant ID: ");
         RestID = Console.ReadLine();
@@ -535,272 +543,300 @@ void ModifyExistingOrder()
     Console.WriteLine("Modify Order");
     Console.WriteLine("============");
 
-    Console.Write("Enter Customer Email: ");
-    string CustEmail = Console.ReadLine();
+    Customer MC = null;
+    string CustEmail = string.Empty;
 
-    // Find Customer
-    Customer MC = SearchCustomer(custDict, CustEmail);
-
-    if (MC != null)
+    // Keep prompting until a valid customer is found
+    while (MC == null)
     {
-        Console.WriteLine("Pending Orders:");
-        bool foundPending = false;                // Set false first
-        foreach (Order o in MC.OrderList.Values)  // For each order in the customer's order list
+        Console.Write("Enter Customer Email: ");
+        CustEmail = Console.ReadLine();
+
+        MC = SearchCustomer(custDict, CustEmail);
+
+        if (MC == null)
         {
-            if (o.OrderStatus == "Pending")
-            {
-                Console.WriteLine(o.OrderId);
-                foundPending = true;              // Set to true if at least one pending order found
-            }
-        }
-        if (!foundPending)                        // If foundPending = false
-        {
-            Console.WriteLine("No pending orders found for this customer.");
-            return;
+            Console.WriteLine("Error: Customer not found! Please try again.");
         }
     }
-    else
+
+    // MC is guaranteed to be valid at this point
+    Console.WriteLine("Pending Orders:");
+    bool foundPending = false;              // Set false first
+
+    foreach (Order o in MC.OrderList.Values)
     {
-        Console.WriteLine("Customer not found.");
+        if (o.OrderStatus == "Pending")
+        {
+            Console.WriteLine(o.OrderId);
+            foundPending = true;            // Set to true if at least one pending order found
+        }
+    }
+
+    if (!foundPending)          // If foundPending = false
+    {
+        Console.WriteLine("No pending orders found for this customer.");
         return;
     }
 
-    Console.Write("Enter Order ID: ");
-    int OrderID = Convert.ToInt32(Console.ReadLine());
+    // Error handling for Order ID input
+    int OrderID;
+    Order selectedOrder = null;
+    string input;
 
-    // Loops through customer's order list to find if order ID entered by user exists
-    bool foundOrder = false;
-    foreach (Order o in MC.OrderList.Values)
+    while (selectedOrder == null)
     {
-        if (o.OrderId == OrderID)
+        Console.Write("Enter Order ID: ");
+        input = Console.ReadLine();
+
+        try
         {
-            foundOrder = true;
-            Console.WriteLine("Order found.");
-            Console.WriteLine();
+            OrderID = Convert.ToInt32(input);
 
-            // Proceed to modify order
-            Console.WriteLine("Order Items:");
-            for (int i = 0; i < o.OrderedList.Count; i++)
+            bool foundOrder = false;
+            foreach (Order o in MC.OrderList.Values)
             {
-                OrderedFoodItem ofi = o.OrderedList[i];
-                Console.WriteLine($"{i + 1}. {ofi.ItemName} - {ofi.QtyOrdered}");
-            }
-            Console.WriteLine("Address:");
-            Console.WriteLine(o.DeliveryAddress);
-            Console.WriteLine("Delivery Date/Time:");
-            // Splitting the Date and Time for display
-            DateTime deliveryDate = o.DeliveryDateTime.Date; // Eg.(15/2/2026 00:00:00) Time component set to 00:00:00. Hence must format later to "dd/MM/yyyy"
-            TimeSpan deliveryTime = o.DeliveryDateTime.TimeOfDay; // Eg.(12:30:00)
-            Console.WriteLine($"{deliveryDate:dd/MM/yyyy}, {deliveryTime:hh\\:mm}");
-            Console.WriteLine();
-
-            // Error handling for modify options
-            int modifyOption;
-            while (true)
-            {
-                Console.Write("Modify: [1] Items [2] Address [3] Delivery Time: ");
-                string input = Console.ReadLine();
-
-                try
+                if (o.OrderId == OrderID)
                 {
-                    modifyOption = Convert.ToInt32(input);
+                    selectedOrder = o; // found the order
+                    Console.WriteLine("Order found.");
+                    foundOrder = true;
+                    Console.WriteLine();
 
-                    if (modifyOption >= 1 && modifyOption <= 3)
+                    // Proceed to modify order
+                    Console.WriteLine("Order Items:");
+                    for (int i = 0; i < o.OrderedList.Count; i++)
                     {
-                        break; // valid option, exit loop
+                        OrderedFoodItem ofi = o.OrderedList[i];
+                        Console.WriteLine($"{i + 1}. {ofi.ItemName} - {ofi.QtyOrdered}");
                     }
-                    else
-                    {
-                        Console.WriteLine("Error: Please enter 1, 2, or 3.");
-                        continue; // re‑prompt
-                    }
-                }
-                catch
-                {
-                    Console.WriteLine("Error: Please enter a number (1, 2, or 3).");
-                    continue; // re‑prompt
-                }
-            }
-            
-            if (modifyOption == 1)
-            {
-                // Show current ordered items
-                for (int i = 0; i < o.OrderedList.Count; i++)
-                {
-                    OrderedFoodItem ofi = o.OrderedList[i];
-                    Console.WriteLine($"{i + 1}. {ofi.ItemName} - {ofi.QtyOrdered}");
-                }
+                    Console.WriteLine("Address:");
+                    Console.WriteLine(o.DeliveryAddress);
+                    Console.WriteLine("Delivery Date/Time:");
+                    // Splitting the Date and Time for display
+                    DateTime deliveryDate = o.DeliveryDateTime.Date; // Eg.(15/2/2026 00:00:00) Time component set to 00:00:00. Hence must format later to "dd/MM/yyyy"
+                    TimeSpan deliveryTime = o.DeliveryDateTime.TimeOfDay; // Eg.(12:30:00)
+                    Console.WriteLine($"{deliveryDate:dd/MM/yyyy}, {deliveryTime:hh\\:mm}");
+                    Console.WriteLine();
 
-                // ItemNo input and validation
-                int itemNo = 0;
-                bool valid = false;
-
-                while (!valid)
-                {
-                    Console.Write("Enter item number to modify: ");
-                    try
-                    {
-                        itemNo = Convert.ToInt32(Console.ReadLine());
-
-                        if (itemNo >= 1 && itemNo <= o.OrderedList.Count)
-                        {
-                            valid = true; // success, exit loop
-                        }
-                        else
-                        {
-                            Console.WriteLine("Invalid item number. Please try again.");
-                        }
-                    }
-                    catch (FormatException)
-                    {
-                        Console.WriteLine("That wasn't a number. Please try again.");
-                    }
-                    catch (OverflowException)
-                    {
-                        Console.WriteLine("Number too large. Please try again.");
-                    }
-                }
-
-                if (itemNo >= 1 && itemNo <= o.OrderedList.Count)   // Not needed but just in case
-                {
-                    double oldTotal = o.OrderTotal;
-                    OrderedFoodItem selectedItem = o.OrderedList[itemNo - 1];
-
-                    // Store old values before modifying
-                    int OldQty = selectedItem.QtyOrdered;
-                    double OldSubtotal = selectedItem.SubTotal;
-
-                    // New quantity input and validation
-                    int newQty;
+                    // Error handling for modify options
+                    int modifyOption;
                     while (true)
                     {
-                        Console.Write($"Enter new quantity for {selectedItem.ItemName}: ");
-                        string input = Console.ReadLine();
+                        Console.Write("Modify: [1] Items [2] Address [3] Delivery Time: ");
+                        input = Console.ReadLine();
 
                         try
                         {
-                            newQty = Convert.ToInt32(input);
-                            // Allows 0 but rejects negative values
-                            if (newQty < 0)
+                            modifyOption = Convert.ToInt32(input);
+
+                            if (modifyOption >= 1 && modifyOption <= 3)
                             {
-                                Console.WriteLine("Error: Quantity cannot be negative.");
-                                continue;   // ask again
+                                break; // valid option, exit loop
                             }
-                            break;  // valid input, exit loop
+                            else
+                            {
+                                Console.WriteLine("Error: Please enter 1, 2, or 3.");
+                                continue; // re‑prompt
+                            }
                         }
                         catch
                         {
-                            Console.WriteLine("Error: Please enter a valid number.");
-                            continue;
+                            Console.WriteLine("Error: Please enter a number (1, 2, or 3).");
+                            continue; // re‑prompt
                         }
                     }
 
-                    // Applying new values
-                    selectedItem.QtyOrdered = newQty;
-                    selectedItem.SubTotal = newQty * selectedItem.ItemPrice; // Update subtotal
-
-                    // Recalculate order total
-                    double delivery = 5.00;
-                    double newTotal = o.CalculateOrderTotal() + delivery;    // CalculateOrderTotal() does not include delivery fees but the oldTotal does.
-                    if (newTotal > oldTotal)
+                    if (modifyOption == 1)
                     {
-                        Console.WriteLine($"Additional payment of ${(newTotal - oldTotal).ToString("0.00")} required.");
-                        Console.Write("Proceed to payment? [Y/N]: ");
-                        string proceedPayment = Console.ReadLine().ToUpper();
-
-                        if (proceedPayment == "Y")
+                        // Show current ordered items
+                        for (int i = 0; i < o.OrderedList.Count; i++)
                         {
-                            string paymentMethod;
-                            while (true)
-                            {
-                                Console.WriteLine("Payment method: ");
-                                Console.Write("[CC] Credit Card / [PP] PayPal / [CD] Cash on Delivery: ");
-                                paymentMethod = Console.ReadLine().ToUpper();
+                            OrderedFoodItem ofi = o.OrderedList[i];
+                            Console.WriteLine($"{i + 1}. {ofi.ItemName} - {ofi.QtyOrdered}");
+                        }
 
-                                if (paymentMethod == "CC" || paymentMethod == "PP" || paymentMethod == "CD")
+                        // ItemNo input and validation
+                        int itemNo = 0;
+                        bool valid = false;
+
+                        while (!valid)
+                        {
+                            Console.Write("Enter item number to modify: ");
+                            try
+                            {
+                                itemNo = Convert.ToInt32(Console.ReadLine());
+
+                                if (itemNo >= 1 && itemNo <= o.OrderedList.Count)
                                 {
-                                    break; // valid input, exit loop
+                                    valid = true; // success, exit loop
                                 }
                                 else
                                 {
-                                    Console.WriteLine("Error: Invalid payment method. Please enter CC, PP, or CD.");
-                                    continue; // re-prompt
+                                    Console.WriteLine("Invalid item number. Please try again.");
                                 }
                             }
-                            Console.WriteLine();
-                            o.OrderTotal = newTotal;
-                            Console.WriteLine("Payment successful.");
-                            Console.WriteLine($"Order {o.OrderId} updated. New quantity for {selectedItem.ItemName}: {selectedItem.QtyOrdered}");
+                            catch (FormatException)
+                            {
+                                Console.WriteLine("That wasn't a number. Please try again.");
+                            }
+                            catch (OverflowException)
+                            {
+                                Console.WriteLine("Number too large. Please try again.");
+                            }
                         }
-                        else if (proceedPayment == "N")
+
+                        if (itemNo >= 1 && itemNo <= o.OrderedList.Count)   // Not needed but just in case
                         {
-                            // Revert changes
-                            selectedItem.QtyOrdered = OldQty; // Revert to old quantity
-                            selectedItem.SubTotal = OldSubtotal; // Revert subtotal
-                            Console.WriteLine("Modification cancelled.");
-                            return;
-                        }
-                        else
-                        {
-                            Console.WriteLine("Invalid option.");
+                            double oldTotal = o.OrderTotal;
+                            OrderedFoodItem selectedItem = o.OrderedList[itemNo - 1];
+
+                            // Store old values before modifying
+                            int OldQty = selectedItem.QtyOrdered;
+                            double OldSubtotal = selectedItem.SubTotal;
+
+                            // New quantity input and validation
+                            int newQty;
+                            while (true)
+                            {
+                                Console.Write($"Enter new quantity for {selectedItem.ItemName}: ");
+                                input = Console.ReadLine();
+
+                                try
+                                {
+                                    newQty = Convert.ToInt32(input);
+                                    // Allows 0 but rejects negative values
+                                    if (newQty < 0)
+                                    {
+                                        Console.WriteLine("Error: Quantity cannot be negative.");
+                                        continue;   // ask again
+                                    }
+                                    break;  // valid input, exit loop
+                                }
+                                catch
+                                {
+                                    Console.WriteLine("Error: Please enter a valid number.");
+                                    continue;
+                                }
+                            }
+
+                            // Applying new values
+                            selectedItem.QtyOrdered = newQty;
+                            selectedItem.SubTotal = newQty * selectedItem.ItemPrice; // Update subtotal
+
+                            // Recalculate order total
+                            double delivery = 5.00;
+                            double newTotal = o.CalculateOrderTotal() + delivery;    // CalculateOrderTotal() does not include delivery fees but the oldTotal does.
+                            if (newTotal > oldTotal)
+                            {
+                                Console.WriteLine($"Additional payment of ${(newTotal - oldTotal).ToString("0.00")} required.");
+                                Console.Write("Proceed to payment? [Y/N]: ");
+                                string proceedPayment = Console.ReadLine().ToUpper();
+
+                                if (proceedPayment == "Y")
+                                {
+                                    string paymentMethod;
+                                    while (true)
+                                    {
+                                        Console.WriteLine("Payment method: ");
+                                        Console.Write("[CC] Credit Card / [PP] PayPal / [CD] Cash on Delivery: ");
+                                        paymentMethod = Console.ReadLine().ToUpper();
+
+                                        if (paymentMethod == "CC" || paymentMethod == "PP" || paymentMethod == "CD")
+                                        {
+                                            break; // valid input, exit loop
+                                        }
+                                        else
+                                        {
+                                            Console.WriteLine("Error: Invalid payment method. Please enter CC, PP, or CD.");
+                                            continue; // re-prompt
+                                        }
+                                    }
+                                    Console.WriteLine();
+                                    o.OrderTotal = newTotal;
+                                    Console.WriteLine("Payment successful.");
+                                    Console.WriteLine($"Order {o.OrderId} updated. New quantity for {selectedItem.ItemName}: {selectedItem.QtyOrdered}");
+                                }
+                                else if (proceedPayment == "N")
+                                {
+                                    // Revert changes
+                                    selectedItem.QtyOrdered = OldQty; // Revert to old quantity
+                                    selectedItem.SubTotal = OldSubtotal; // Revert subtotal
+                                    Console.WriteLine("Modification cancelled.");
+                                    return;
+                                }
+                                else
+                                {
+                                    Console.WriteLine("Invalid option.");
+                                }
+                            }
+                            else if (newTotal < oldTotal)
+                            {
+                                Console.WriteLine($"Refund of ${(oldTotal - newTotal).ToString("0.00")} will be processed.");
+                                o.OrderTotal = newTotal;
+
+                                // Create a refund order for the refund stack
+                                Order refundOrder = new Order(o.OrderId, o.OrderDateTime, oldTotal - newTotal, "Cancelled", o.DeliveryDateTime, o.DeliveryAddress, o.OrderPaymentMethod, true, o.Restaurant, o.Customer);
+
+                                // Push to refund stack
+                                refundstack.Push(refundOrder);
+                            }
+                            else
+                            {
+
+                                Console.WriteLine("No change in total amount.");
+                                Console.WriteLine($"Order {o.OrderId} updated. New quantity for {selectedItem.ItemName}: {selectedItem.QtyOrdered}");
+                            }
+
                         }
                     }
-                    else if (newTotal < oldTotal)
+                    else if (modifyOption == 2)
                     {
-                        Console.WriteLine($"Refund of ${(oldTotal - newTotal).ToString("0.00")} will be processed.");
-                        o.OrderTotal = newTotal;
+                        string newAddress;
+                        while (true)
+                        {
+                            Console.Write("Enter new delivery address: ");
+                            newAddress = Console.ReadLine();
 
-                        // Create a refund order for the refund stack
-                        Order refundOrder = new Order(o.OrderId, o.OrderDateTime, oldTotal - newTotal, "Cancelled", o.DeliveryDateTime, o.DeliveryAddress, o.OrderPaymentMethod, true, o.Restaurant, o.Customer);
+                            if (newAddress == null || newAddress == "")
+                            {
+                                Console.WriteLine("Error: Delivery address cannot be empty!");
+                                continue; // go back to the top of the loop, re‑prompt
+                            }
 
-                        // Push to refund stack
-                        refundstack.Push(refundOrder);
+                            break; // valid input, exit loop
+                        }
+                        o.DeliveryAddress = newAddress;
+                        Console.WriteLine($"Order {o.OrderId} updated. New Delivery address: {o.DeliveryAddress}");
                     }
                     else
                     {
+                        Console.Write("Enter new delivery time (hh:mm): ");
+                        string newTime = Console.ReadLine();
+                        string newDeliveryDT = deliveryDate.ToString("dd/MM/yyyy") + " " + newTime;     // Old delivery date + " " + new time = new delivery date time
+                        DateTime newDeliveryDateTime = Convert.ToDateTime(newDeliveryDT);
+                        o.DeliveryDateTime = newDeliveryDateTime;
 
-                        Console.WriteLine("No change in total amount.");
-                        Console.WriteLine($"Order {o.OrderId} updated. New quantity for {selectedItem.ItemName}: {selectedItem.QtyOrdered}");
+                        Console.WriteLine($"Order {o.OrderId} updated. New Delivery time: {newTime}");
                     }
 
+                    break;
                 }
             }
-            else if (modifyOption == 2)
+
+            if (selectedOrder == null)
             {
-                string newAddress;
-                while (true)
-                {
-                    Console.Write("Enter new delivery address: ");
-                    newAddress = Console.ReadLine();
-
-                    if (newAddress == null || newAddress == "")
-                    {
-                        Console.WriteLine("Error: Delivery address cannot be empty!");
-                        continue; // go back to the top of the loop, re‑prompt
-                    }
-
-                    break; // valid input, exit loop
-                }
-                o.DeliveryAddress = newAddress;
-                Console.WriteLine($"Order {o.OrderId} updated. New Delivery address: {o.DeliveryAddress}");
-            }
-            else
-            {
-                Console.Write("Enter new delivery time (hh:mm): ");
-                string newTime = Console.ReadLine();
-                string newDeliveryDT = deliveryDate.ToString("dd/MM/yyyy") + " " + newTime;     // Old delivery date + " " + new time = new delivery date time
-                DateTime newDeliveryDateTime = Convert.ToDateTime(newDeliveryDT);
-                o.DeliveryDateTime = newDeliveryDateTime;
-
-                Console.WriteLine($"Order {o.OrderId} updated. New Delivery time: {newTime}");
+                Console.WriteLine("Error: Order not found. Please try again.");
             }
         }
-       
-    }
-    if (!foundOrder)
-    {
-        Console.WriteLine("Order not found.");
-        return;
+        catch (FormatException)
+        {
+            Console.WriteLine("Error: That wasn't a number. Please try again.");
+        }
+        catch (OverflowException)
+        {
+            Console.WriteLine("Error: Number too large. Please try again.");
+        }
     }
 }
 
@@ -955,7 +991,11 @@ void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string,Menu> MenuDict
 
 Restaurant SearchRestaurant(Dictionary<string, Restaurant> RestaurantDict, string restaurantid)
 {
-    return RestaurantDict[restaurantid];
+    if (RestaurantDict.ContainsKey(restaurantid))
+    {
+        return RestaurantDict[restaurantid];
+    }
+    return null;
 }
 
 void LoadRestaurant(Dictionary<string,Restaurant> RestaurantDict)
