@@ -82,7 +82,7 @@ while (option != 0)
     }
     else if (option == 8)
     {
-        DisplayTotalOrderAmt(RestaurantDict, refundstack);
+        DisplayTotalOrderAmt(RestaurantDict, refundstack, orderDict);
     }
     else if (option == 0)
     {
