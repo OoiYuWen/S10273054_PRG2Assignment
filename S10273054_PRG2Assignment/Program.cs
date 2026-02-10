@@ -1292,6 +1292,7 @@ void ProcessAnOrder(Dictionary<int,Order> orderDict)
         {
             if (choice == "s")
             {
+                refundstack.Push(currentOrder);
                 Console.WriteLine($"Order {currentOrder.OrderId} skipped (Cancelled)");
                 RemoveFromQueue = true;
             }
@@ -1402,15 +1403,16 @@ void Deleteexistingorder(Dictionary<int, Order> orderDict, Stack<Order> refundst
 
 
 // Ooi Yu Wen Advanced Feature: Display total order amount 
-void DisplayTotalOrderAmt(Dictionary<string, Restaurant> RestaurantDict, Stack<Order> refundstack)
+void DisplayTotalOrderAmt(Dictionary<string, Restaurant> RestaurantDict, Stack<Order> refundstack, Dictionary<int, Order> orderDict)
 {
-    double totalorder = 0;
-    double totalrefund = 0;
     try
     {
+        double totalorder = 0;
+        double totalrefund = 0;
+
         foreach (var kvp in RestaurantDict)
         {
-            Restaurant r = kvp.Value;
+            Restaurant r = kvp.Value; 
             // check if got null
             if (r == null)
             {
@@ -1420,24 +1422,22 @@ void DisplayTotalOrderAmt(Dictionary<string, Restaurant> RestaurantDict, Stack<O
             double restaurantTotalOrder = 0;
             double restaurantTotalRefund = 0;
 
-            // delivered orders
-            foreach (Order o in r.OrderQueue)
+            // Loop through OrderDict to find orders for this restaruant
+            foreach(Order o in orderDict.Values)
             {
-                if (o.OrderStatus == "Delivered")
+                if (o.Restaurant != null && o.Restaurant.RestaurantId == r.RestaurantId)
                 {
-                    double deliveryfee = 5.0;
-                    restaurantTotalOrder += (o.OrderTotal - deliveryfee);
+                    if (o.OrderStatus == "Delivered")
+                    {
+                        // exclude delivery fee
+                        restaurantTotalOrder += (o.OrderTotal - 5.0);
+                    }
+                    else if (o.OrderStatus == "Cancelled" || o.OrderStatus == "Rejected")
+                    {
+                        restaurantTotalRefund += o.OrderTotal;
+                    }
                 }
             }
-            // Refunds are stored in refundstack
-            foreach (Order o in refundstack)
-            {
-                if (o.Restaurant.RestaurantId == r.RestaurantId)
-                {
-                    restaurantTotalRefund += o.OrderTotal;
-                }
-            }
-
             Console.WriteLine($"\nRestaurant {r.RestaurantId}: ");
             Console.WriteLine($"Total Orders (Delivered): {restaurantTotalOrder:F2}");
             Console.WriteLine($"Total Refunds: {restaurantTotalRefund:F2}");
@@ -1448,8 +1448,8 @@ void DisplayTotalOrderAmt(Dictionary<string, Restaurant> RestaurantDict, Stack<O
 
         double finalamt = totalorder - totalrefund;
         Console.WriteLine("=====================================");
-        Console.WriteLine($"Overal Total Orders: {totalorder:F2}");
-        Console.WriteLine($"Overal Total Refunds: {totalrefund:F2}");
+        Console.WriteLine($"Overall Total Orders: {totalorder:F2}");
+        Console.WriteLine($"Overall Total Refunds: {totalrefund:F2}");
         Console.WriteLine($"Final Amount Gruberoo Earns: {finalamt:F2}");
     }
     catch(FormatException)
