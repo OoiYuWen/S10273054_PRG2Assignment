@@ -7,7 +7,7 @@
 // Chloe: 2,3,5,7
 // Yu Wen: 1,4,6,8
 
-using Microsoft.VisualBasic;
+using Microsoft.VisualBasic; 
 using S10273054_PRG2Assignment;
 using System.Collections.Generic;
 using System.Globalization;
@@ -1477,3 +1477,27 @@ void DisplayMainMenu()
     Console.WriteLine("8. Display total order amount");
     Console.WriteLine("0. Exit");
 }
+
+// Save to queue and stack file (not complete)
+void SaveQueueToFile(Queue<string> queue, string filePath)
+{
+    using (StreamWriter sw = new StreamWriter(filePath))
+    {
+        foreach (string item in queue)
+        {
+            sw.WriteLine(item);
+        }
+    }
+}
+
+void SaveStackToFile(Stack<string> stack, string filePath)
+{
+    using (StreamWriter sw = new StreamWriter(filePath, false))
+    {
+        foreach (string item in stack)
+        {
+            sw.WriteLine(item);
+        }
+    }
+}
+
