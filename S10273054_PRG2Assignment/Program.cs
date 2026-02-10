@@ -248,6 +248,7 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
         if (c == null || !custDict.ContainsKey(CustEmail))
         {
             Console.WriteLine("Error: Customer not found! Please try again.");
+            Console.WriteLine();
         }
     }
     Console.WriteLine($"Customer found: {c.CustomerName}");
@@ -267,6 +268,7 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
         if (r == null)
         {
             Console.WriteLine("Error: Restaurant not found! Please try again.");
+            Console.WriteLine();
         }
     }
     Console.WriteLine($"Restaurant found: {r.RestaurantName}");
@@ -287,6 +289,7 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
         else
         {
             Console.WriteLine("Error: Invalid date format. Please use dd/mm/yyyy");
+            Console.WriteLine();
 
         }
     }
@@ -306,6 +309,7 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
         else
         {
             Console.WriteLine("Error: Invalid time format. Please use hh:mm");
+            Console.WriteLine();
         }
     }
 
