@@ -251,6 +251,7 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
         }
     }
     Console.WriteLine($"Customer found: {c.CustomerName}");
+    Console.WriteLine();
 
 
     // Checking if restaurant exists
@@ -269,6 +270,7 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
         }
     }
     Console.WriteLine($"Restaurant found: {r.RestaurantName}");
+    Console.WriteLine();
 
 
     // Delivery Date input
