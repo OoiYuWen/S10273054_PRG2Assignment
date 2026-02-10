@@ -295,16 +295,16 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
     }
 
 
-    // Delivery Time input
+    // Delivery Time input: Need to use a stricter error handling meathod since normal error handling accepts numbers like "1234". 
     TimeSpan deliveryTime;
     while (true)
     {
         Console.Write("Enter Delivery Time (hh:mm): ");
         string DeliveryT = Console.ReadLine();
 
-        if (TimeSpan.TryParse(DeliveryT, out deliveryTime))
+        if (TimeSpan.TryParseExact(DeliveryT, "hh\\:mm", null, out deliveryTime))       // TryParseExact only accepts the exact format I specify (hh:mm) so that inputs like "1234" will be rejected
         {
-            break; // valid time
+            break; // valid time in hh:mm format
         }
         else
         {
