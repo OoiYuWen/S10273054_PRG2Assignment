@@ -245,7 +245,7 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
         c = SearchCustomer(custDict, CustEmail);
 
 
-        if (c == null || !custDict.ContainsKey(CustEmail))
+        if (c == null)
         {
             Console.WriteLine("Error: Customer not found! Please try again.");
             Console.WriteLine();
@@ -364,7 +364,19 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
     while (itemNo != 0)
     {
         Console.Write("Enter item number (0 to finish): ");
-        itemNo = Convert.ToInt32(Console.ReadLine());
+        string choice = Console.ReadLine();
+
+        try
+        {
+            itemNo = Convert.ToInt32(choice);
+        }
+        catch
+        {
+            Console.WriteLine("Error: Please enter a valid number.");
+            Console.WriteLine();
+            continue; // go back to asking for item number
+        }
+
 
         if (itemNo == 0)
             break;
@@ -372,6 +384,7 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
         if (itemNo < 1 || itemNo > foodList.Count)
         {
             Console.WriteLine("Invalid option, try again.");
+            Console.WriteLine();
             continue;
         }
 
@@ -388,6 +401,7 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
                 if (qty < 1)
                 {
                     Console.WriteLine("Error: Quantity must be at least 1.");
+                    Console.WriteLine();
                     continue;   // ask again
                 }
                 break;  // valid input, exit loop
@@ -413,7 +427,7 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
     }
 
     Console.Write("Add special request? [Y/N]: ");
-    string specialReq = Console.ReadLine().ToUpper();
+    string specialReq = Console.ReadLine().Trim().ToUpper();
     if (specialReq == "Y")
     {
         string request;
@@ -423,7 +437,7 @@ void CreateNewOrder(Dictionary<string, Restaurant> RestaurantDict, Dictionary<st
             request = Console.ReadLine();
 
             // Checking if special request is empty
-            if (request == null || request == "")
+            if (request == null || request.Trim() == "")
             {
                 Console.WriteLine("Error: Special request cannot be empty!");
                 continue;   // re-prompt
@@ -549,20 +563,22 @@ void ModifyExistingOrder()
     Console.WriteLine("Modify Order");
     Console.WriteLine("============");
 
+
     Customer MC = null;
     string CustEmail = string.Empty;
-
-    // Keep prompting until a valid customer is found
     while (MC == null)
     {
         Console.Write("Enter Customer Email: ");
         CustEmail = Console.ReadLine();
 
+        // Find customer
         MC = SearchCustomer(custDict, CustEmail);
+
 
         if (MC == null)
         {
             Console.WriteLine("Error: Customer not found! Please try again.");
+            Console.WriteLine();
         }
     }
 
