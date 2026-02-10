@@ -1087,7 +1087,6 @@ void DisplayAllOrders(Dictionary<int,Order> orderDict)
 
 // 6) Process an order
 void ProcessAnOrder(Dictionary<int,Order> orderDict)
-    // loop through order queue 
 {
     Console.WriteLine("Process Order");
     Console.WriteLine("=============");
@@ -1104,8 +1103,6 @@ void ProcessAnOrder(Dictionary<int,Order> orderDict)
             return;
         }
 
-        //for (int i = 0; i < r.OrderQueue.Count; i++)
-        //{
         Order currentOrder = r.OrderQueue.Peek();
         string CustName = "Unknown";
         if (currentOrder.Customer != null)
@@ -1130,7 +1127,7 @@ void ProcessAnOrder(Dictionary<int,Order> orderDict)
             if (choice == "c")
             {
                 currentOrder.OrderStatus = "Preparing";
-                Console.WriteLine($"Order {currentOrder.OrderId} confirmed. Status: Preparing");
+                Console.WriteLine($"Order {currentOrder.OrderId} confirmed. Status: {currentOrder.OrderStatus}");
             }
             else if (choice == "r")
             {
@@ -1140,87 +1137,48 @@ void ProcessAnOrder(Dictionary<int,Order> orderDict)
                 RemoveFromQueue = true;
 
             }
-            else if (choice == "s")
+            else
             {
-                Console.WriteLine("The order has been skipped");
-            }
-            else if (choice == "d")
-            {
-                Console.WriteLine("The order has not been prepared thus unable to deliver.");
+                Console.WriteLine("Action cannot be done. Pending orders can only be Confirmed or Rejected.");
             }
         }
 
         else if (currentOrder.OrderStatus == "Preparing")
         {
-            if (choice == "c")
-            {
-                Console.WriteLine("The order is being prepared.");
-            }
-            else if (choice == "r")
-            {
-                currentOrder.OrderStatus = "Cancelled";
-                RemoveFromQueue = true;
-            }
-            else if (choice == "s")
-            {
-                Console.WriteLine("The order has been skipped");
-            }
-            else if (choice == "d")
+            if (choice == "d")
             {
                 currentOrder.OrderStatus = "Delivered";
                 Console.WriteLine($"Order {currentOrder.OrderId} delivered.");
                 RemoveFromQueue = true;
             }
+            else
+            {
+                Console.WriteLine("Action cannot be done. Preparing orders can only be Delivered.");
+            }
         }
 
         else if (currentOrder.OrderStatus == "Delivered")
         {
-            if (choice == "c")
-            {
-                Console.WriteLine("The order is being delivered, it has already been confirmed.");
-                RemoveFromQueue = true;
-            }
-            else if (choice == "r")
-            {
-                Console.WriteLine("The order cannot be rejected");
-            }
-            else if (choice == "s")
-            {
-                Console.WriteLine("The order has been skipped");
-            }
-            else if (choice == "d")
-            {
-                Console.WriteLine("The order is being delivered.");
-            }
+            Console.WriteLine("Action cannot be done. Order is already delivered.");
         }
 
         else if (currentOrder.OrderStatus == "Cancelled")
         {
-            if (choice == "c")
-            {
-                Console.WriteLine("The order has been cancelled.");
-            }
-            else if (choice == "r")
-            {
-                Console.WriteLine("The order has been declined");
-            }
-            else if (choice == "s")
+            if (choice == "s")
             {
                 Console.WriteLine($"Order {currentOrder.OrderId} skipped (Cancelled)");
                 RemoveFromQueue = true;
             }
-            else if (choice == "d")
+            else
             {
-                Console.WriteLine("The order has been cancelled thus unable to be delivered.");
-            }
-
-            if (RemoveFromQueue)
-            {
-                r.OrderQueue.Dequeue();
+                Console.WriteLine("Action cannot be done. Cancelled orders can only be skipped.");
             }
         }
-        Console.WriteLine($"Order {currentOrder.OrderId} confirmed. Status: {currentOrder.OrderStatus}");
 
+        if (RemoveFromQueue)
+        {
+            r.OrderQueue.Dequeue();
+        }
     }
     catch(FormatException)
     {
@@ -1322,42 +1280,60 @@ void DisplayTotalOrderAmt(Dictionary<string, Restaurant> RestaurantDict, Stack<O
 {
     double totalorder = 0;
     double totalrefund = 0;
-    foreach (var kvp in RestaurantDict)
+    try
     {
-        Restaurant r = kvp.Value;
-        double restaurantTotalOrder = 0;
-        double restaurantTotalRefund = 0;
-
-        foreach(Order o in r.OrderQueue)
+        foreach (var kvp in RestaurantDict)
         {
-            if (o.OrderStatus == "Delivered")
+            Restaurant r = kvp.Value;
+            // check if got null
+            if (r == null)
             {
-                double deliveryfee = 5.0;
-                restaurantTotalOrder += (o.OrderTotal - deliveryfee);
+                Console.WriteLine("Skipping null restaurant entry.");
+                continue;
             }
-        }
-        // Refunds: either check refundstack or orders with status "Rejected"
-        foreach (Order o in refundstack)
-        {
-            if (o.Restaurant.RestaurantId == r.RestaurantId)
+            double restaurantTotalOrder = 0;
+            double restaurantTotalRefund = 0;
+
+            // delivered orders
+            foreach (Order o in r.OrderQueue)
             {
-                restaurantTotalRefund += o.OrderTotal;
+                if (o.OrderStatus == "Delivered")
+                {
+                    double deliveryfee = 5.0;
+                    restaurantTotalOrder += (o.OrderTotal - deliveryfee);
+                }
             }
+            // Refunds: either check refundstack or orders with status "Rejected"
+            foreach (Order o in refundstack)
+            {
+                if (o.Restaurant.RestaurantId == r.RestaurantId)
+                {
+                    restaurantTotalRefund += o.OrderTotal;
+                }
+            }
+
+            Console.WriteLine($"\nRestaurant {r.RestaurantId}: ");
+            Console.WriteLine($"Total Orders (Delivered): {restaurantTotalOrder:F2}");
+            Console.WriteLine($"Total Refunds: {restaurantTotalRefund:F2}");
+
+            totalorder += restaurantTotalOrder;
+            totalrefund += restaurantTotalRefund;
         }
 
-        Console.WriteLine($"Restaurant {r.RestaurantId}: ");
-        Console.WriteLine($"Total Orders (Delivered): {restaurantTotalOrder:F2}");
-        Console.WriteLine($"Total Refunds: {restaurantTotalRefund:F2}");
-
-        totalorder += restaurantTotalOrder;
-        totalrefund += restaurantTotalRefund;
+        double finalamt = totalorder - totalrefund;
+        Console.WriteLine("=====================================");
+        Console.WriteLine($"Overal Total Orders: {totalorder:F2}");
+        Console.WriteLine($"Overal Total Refunds: {totalrefund:F2}");
+        Console.WriteLine($"Final Amount Gruberoo Earns: {finalamt:F2}");
     }
-
-    double finalamt = totalorder - totalrefund;
-    Console.WriteLine("=====================================");
-    Console.WriteLine($"Overal Total Orders: {totalorder:F2}");
-    Console.WriteLine($"Overal Total Refunds: {totalrefund:F2}");
-    Console.WriteLine($"Final Amount Gruberoo Earns: {finalamt:F2}");
+    catch(FormatException)
+    {
+        Console.WriteLine("Invalid data format detected while calculating totals");
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine("Error calculating totals: " + ex.Message);
+    }
 } 
 
 // Display Main menu method

@@ -77,7 +77,7 @@ namespace S10273054_PRG2Assignment
                 Console.WriteLine($"{count}. {item.ItemName} - {item.QtyOrdered}");    
             }
             Console.WriteLine($"Delivery date/time: {DeliveryDateTime}");
-            Console.WriteLine($"Total Amount: ${OrderTotal}");
+            Console.WriteLine($"Total Amount: ${OrderTotal:F2}");
             Console.WriteLine($"Order Status: {OrderStatus}");
         }
         public override string ToString()
