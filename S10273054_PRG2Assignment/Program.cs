@@ -36,6 +36,7 @@ LoadRestaurant(RestaurantDict);
 LoadFoodItem(fooditemlist, menuDict, RestaurantDict);
 LoadCustomers(custDict);
 LoadOrders(orderDict, RestaurantDict, custDict);
+loadSpecialOffer(RestaurantDict);
 
 
 int option = -1;
@@ -917,7 +918,7 @@ void BulkProcessOrders(Dictionary<int, Order> orderDict)
 }
 
 // Chloe Chan Xin: Bonuse feature: Create an order with a special offer (order total to be re-calculated due to discount)
-void loadSpecialOffer()
+void loadSpecialOffer(Dictionary<string, Restaurant> RestaurantDict)
 {
     using (StreamReader sr = new StreamReader("specialoffers.csv"))
     {
@@ -953,6 +954,115 @@ void loadSpecialOffer()
         }
     }
 }
+
+// Apply special offers method (Bonus Feature)
+void ApplyOffers(Order order)
+{
+    Restaurant r = order.Restaurant;
+
+    foreach (SpecialOffer so in r.SpecialOffers)
+    {
+        double currentTotal = order.CalculateOrderTotal();
+
+        if (so.OfferCode == "PHOL" && IsPublicHoliday(DateTime.Today))
+        {
+            double newTotal = currentTotal - so.Discount;
+            so.SpecialOrderList.Add(order);
+            Console.WriteLine($"Applied {so.OfferDesc} : ({so.Discount})");
+            Console.WriteLine($"Final total after offers: {newTotal}");
+        }
+        else if (so.OfferCode == "EARL" && DateTime.Now.TimeOfDay < new TimeSpan(11, 0, 0))  // 11AM cutoff
+        {
+            double newTotal = currentTotal - so.Discount;
+            so.SpecialOrderList.Add(order);
+            Console.WriteLine($"Applied {so.OfferDesc} : ({so.Discount})");
+            Console.WriteLine($"Final total after offers: {newTotal}");
+        }
+        else if (so.OfferCode == "DELI" && currentTotal > 30)
+        {
+            double newTotal = currentTotal - 5; // delivery fee waived
+            so.SpecialOrderList.Add(order);
+            Console.WriteLine($"Applied {so.OfferDesc} : ({so.Discount})");
+            Console.WriteLine($"Final total after offers: {newTotal}");
+        }
+        else if (so.OfferCode == "BOGO")
+        {
+            ApplyBogo(order);
+            so.SpecialOrderList.Add(order);
+            Console.WriteLine($"Applied {so.OfferDesc} : ({so.Discount})");
+        }
+        else if (so.OfferCode == "FEST" && IsFestivePeriod(DateTime.Today))
+        {
+            double newTotal = currentTotal - so.Discount;
+            so.SpecialOrderList.Add(order);
+            Console.WriteLine($"Applied {so.OfferDesc} : ({so.Discount})");
+            Console.WriteLine($"Final total after offers: {newTotal}");
+        }
+
+        else if (so.OfferCode == "WEEK" &&
+         DateTime.Today.DayOfWeek != DayOfWeek.Saturday &&
+         DateTime.Today.DayOfWeek != DayOfWeek.Sunday)
+        {
+            double newTotal = currentTotal - so.Discount;
+            so.SpecialOrderList.Add(order);
+            Console.WriteLine($"Applied {so.OfferDesc} : ({so.Discount})");
+            Console.WriteLine($"Final total after offers: {newTotal}");
+        }
+    }
+}
+
+// Helper methods for the some of the special offers
+
+// (PHOL)
+bool IsPublicHoliday(DateTime date)
+{
+    List<DateTime> publicHolidays = new List<DateTime>
+    {
+        new DateTime(2026, 1, 1), // New Year's Day
+        new DateTime(2026, 2, 10), // Chinese New Year
+    };
+
+    return publicHolidays.Contains(date);
+}
+
+// (BOGO)
+void ApplyBogo(Order order)
+{
+    // Assume OrderedList is a List<OrderedFoodItem>
+    OrderedFoodItem cheapest = null;
+
+    // Find the cheapest item manually
+    foreach (OrderedFoodItem item in order.OrderedList)
+    {
+        if (cheapest == null || item.ItemPrice < cheapest.ItemPrice)
+        {
+            cheapest = item;
+        }
+    }
+
+    // Apply discount by adjusting the order itself
+    if (cheapest != null)
+    {
+        // Instead of subtracting from a TotalAmount property,
+        // I mark the cheapest item as free (set price to 0)
+        cheapest.ItemPrice = 0;
+    }
+    Console.WriteLine($"Final total after offers: {order.CalculateOrderTotal()}");
+}
+
+
+// (FEST)
+bool IsFestivePeriod(DateTime date)
+{
+    // Lunar New Year period
+    DateTime start = new DateTime(2026, 2, 10);
+    DateTime end = new DateTime(2026, 2, 17);
+
+    return date >= start && date <= end;
+}
+
+
+
 
 // 1) Load files (restaurants and food items) 
 void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string,Menu> MenuDict, Dictionary<string, Restaurant> RestaurantDict)
