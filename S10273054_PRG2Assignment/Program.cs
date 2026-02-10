@@ -79,6 +79,10 @@ while (option != 0)
     {
         BulkProcessOrders(orderDict);
     }
+    else if (option == 8)
+    {
+        DisplayTotalOrderAmt(RestaurantDict, refundstack);
+    }
     else if (option == 0)
     {
         Console.WriteLine("Exiting the Gruberoo Food Delivery System. Goodbye!");
@@ -853,8 +857,8 @@ void loadSpecialOffer()
     }
 }
 
-        // 1) Load files (restaurants and food items) 
-        void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string,Menu> MenuDict, Dictionary<string, Restaurant> RestaurantDict)
+// 1) Load files (restaurants and food items) 
+void LoadFoodItem (List<FoodItem> fooditemlist, Dictionary<string,Menu> MenuDict, Dictionary<string, Restaurant> RestaurantDict)
 {
     int counter = 0;
     using (StreamReader sr = new StreamReader("fooditems - Copy.csv"))
@@ -862,26 +866,49 @@ void loadSpecialOffer()
         string? s = sr.ReadLine();
         while ((s = sr.ReadLine()) != null)
         {
-            string[] parts = s.Split(",");
-            string restaurantid = parts[0];
-            string itemname = parts[1];
-            string itemdesc = parts[2];
-            double itemprice = Convert.ToDouble(parts[3]);
-            string customise = "N/A";
-
-            FoodItem fooditem = new FoodItem(itemname, itemdesc, itemprice, customise);
-            fooditemlist.Add(fooditem);
-            counter++;
-
-            Restaurant r = SearchRestaurant(RestaurantDict, restaurantid);
-
-            // Check if restaurant has a '001' menu
-            if (!r.Menus.ContainsKey("001"))
+            try
             {
-                r.AddMenu(new Menu("001", "Main Menu"));
-            }
-            r.Menus["001"].AddFoodItem(fooditem);
+                string[] parts = s.Split(",");
+                if (parts.Length < 4)
+                {
+                    Console.WriteLine("Invalid line format! Skipping...");
+                    continue;
+                }
+                string restaurantid = parts[0];
+                string itemname = parts[1];
+                string itemdesc = parts[2];
+                double itemprice = Convert.ToDouble(parts[3]);
+                string customise = "N/A";
 
+                FoodItem fooditem = new FoodItem(itemname, itemdesc, itemprice, customise);
+                fooditemlist.Add(fooditem);
+                counter++;
+
+                Restaurant r = SearchRestaurant(RestaurantDict, restaurantid);
+                
+                // Check restaurant exists
+                if (!RestaurantDict.ContainsKey(restaurantid))
+                {
+                    Console.WriteLine($"Restaurant ID {restaurantid} not found. Skipping item {itemname}");
+                }
+
+                // Check if restaurant has a '001' menu
+                if (!r.Menus.ContainsKey("001"))
+                {
+                    r.AddMenu(new Menu("001", "Main Menu"));
+                }
+                r.Menus["001"].AddFoodItem(fooditem);
+            }
+            catch (FormatException)
+            {
+                Console.WriteLine($"Invalid price format in line: {s}");
+            }
+            catch (Exception ex)
+            {
+                // Catch any unexpected error
+                Console.WriteLine($"Error Processing Message: {s}");
+                Console.WriteLine($"Details: " + ex.Message);
+            }
         }
     }
     Console.WriteLine($"{counter} food items loaded!");
@@ -1185,5 +1212,6 @@ void DisplayMainMenu()
     Console.WriteLine("5. Modify an existing order");
     Console.WriteLine("6. Delete an existing order");
     Console.WriteLine("7. Bulk process orders");
+    Console.WriteLine("8. Display total order amount");
     Console.WriteLine("0. Exit");
 }
